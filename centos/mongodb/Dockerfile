@@ -27,7 +27,7 @@ enabled=1" >> /etc/yum.repos.d/mongo.repo
 RUN yum install -y mongo-10gen mongo-10gen-server
 
 RUN mkdir -p /data/db
-VOLUME ["/data/db"]
+#VOLUME ["/data/db"]
 
 CMD ["/usr/bin/mongod"]
 

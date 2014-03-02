@@ -20,11 +20,11 @@ Ex.
 ```
 
 ## To build your Fuse image:
-	cd fuse/
+	cd fuse/fuse/
 	# you are expected to have either a copy of jboss-fuse-full-6.0.0.redhat-024.zip or a link here.
 	docker build -rm -t fuse .
 
-## To run you Fuse image
+## To run your Fuse image
 	docker run -t -i fuse
 
 ### Within the image you can

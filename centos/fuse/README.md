@@ -29,7 +29,7 @@ Ex.
 - start sshd server:
     service sshd start
 - start JBoss Fuse
-    sudo -u fuse /opt/rh/jboss-fuse-full-6.0.0.redhat-024/bin/start
+    sudo -u fuse /opt/rh/jboss-fuse-full-6.0.0.redhat-024/bin/fuse
     
 
 

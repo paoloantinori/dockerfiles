@@ -15,3 +15,5 @@
 #################################################################
 
 FROM pantinor/fuse
+
+CMD service sshd start ; bash --init-file /etc/bashrc

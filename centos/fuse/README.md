@@ -1,7 +1,7 @@
 # Docker images to setup a Red Hat JBoss Fuse test environment.
 
 ## NOTE:
-This step require the you to download JBoss Fuse distribution from 
+This step require you to download JBoss Fuse distribution from 
 
 http://www.jboss.org/products/fuse
 
@@ -30,17 +30,19 @@ Ex.
 ### Within the image you can
 - start sshd server:
 ```service sshd start```
-- start JBoss Fuse
+- start JBoss Fuse (example that uses the application user "fuse")
 ```sudo -E -u fuse /opt/rh/jboss-fuse-full-6.0.0.redhat-024/bin/fuse```
     
 #### Your first exercise:
+
+> Note: most of the fabric commands use "localip" as resolver strategy since different Docker containers are not aware of their siebling DNS names.
 
 - start a Docker fuse container.
 ```
 docker run -t -i --name=fabric fuse
 ```
 
-- start fuse
+- start fuse as the "fuse" user
 ```
 sudo -E -u fuse /opt/rh/jboss-fuse-6.0.0.redhat-024/bin/fuse
 ```

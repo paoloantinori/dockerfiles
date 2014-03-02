@@ -40,4 +40,4 @@ ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/jboss-fuse-6.0.0.redhat-024/etc/use
 
 WORKDIR /opt/rh
 
-CMD echo "This is just a abstract image. You need to build your own JBoss Fuse image. See here: "
+CMD echo "This is just a abstract image. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"

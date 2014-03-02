@@ -16,4 +16,8 @@
 
 FROM pantinor/fuse
 
+# since ideally this image wil lbe use for fabric nodes and for managed node, it doesn't start fuse automatically for you.
+# you can do it yourself with:
+# /opt/rh/jboss-fuse-6.0.0.redhat-024/bin/fuse
+
 CMD service sshd start ; bash --init-file /etc/bashrc

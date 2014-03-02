@@ -31,9 +31,54 @@ Ex.
 - start sshd server:
 ```service sshd start```
 - start JBoss Fuse
-```sudo -u fuse /opt/rh/jboss-fuse-full-6.0.0.redhat-024/bin/fuse```
+```sudo -E -u fuse /opt/rh/jboss-fuse-full-6.0.0.redhat-024/bin/fuse```
     
+#### Your first exercise:
 
+- start a Docker fuse container.
+```
+docker run -t -i --name=fabric fuse
+```
+
+- start fuse
+```
+sudo -E -u fuse /opt/rh/jboss-fuse-6.0.0.redhat-024/bin/fuse
+```
+
+- create a new fabric with this command:
+```
+fabric:create -v --clean -g localip -r localip
+```
+
+- in another shell start a new docker fuse container
+```
+docker run -t -i --name=node fuse
+```
+
+- in another shell discover your docker node container ip:
+```
+docker inspect -format '{{ .NetworkSettings.IPAddress }}' node
+```
+
+- in your fabric container (first one) provision a couple of instances to that ip
+```
+container-create-ssh --resolver localip --user fuse --password fuse --path /opt/rh/fabric --host 172.17.0.3 zk 2
+```
+
+- in your fabric container control that the instances have been created:
+```
+container-list
+```
+
+- in your fabric container, tell the provisioned instances to join zookeeper ensemble
+```
+ensemble-add zk1 zk2
+```
+
+- verify your ensemble
+```
+ensemble-list
+```
 
 ## To build base image
 

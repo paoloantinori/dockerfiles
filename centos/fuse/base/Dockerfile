@@ -28,8 +28,10 @@ RUN useradd -m fuse ; echo fuse:fuse | chpasswd
 
 RUN mkdir -m 777 -p /opt/rh
 
+RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc
 RUN echo "alias ll='ls -l --color=auto" >> /etc/bashrc
 RUN echo "alias grep='grep --color=auto" >> /etc/bashrc
+
 
 ONBUILD ADD jboss-fuse-full-6.0.0.redhat-024.zip /root/
 ONBUILD RUN unzip -q -d /opt/rh /root/jboss-fuse-full-6.0.0.redhat-024.zip

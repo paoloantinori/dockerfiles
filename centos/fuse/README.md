@@ -19,9 +19,11 @@ Ex.
     fuse/README.md
 ```
 
+This image supports different versions of JBoss Fuse distribution. The build process will exract in the Docker image all the zip files it will find in your working folder. Ideally you just want a single version present at the same time, like in the above example.
+
 ## To build your Fuse image:
 	cd fuse/fuse/
-	# you are expected to have either a copy of jboss-fuse-full-6.0.0.redhat-024.zip or a link here.
+	# you are expected to have either a copy of jboss-fuse-*.zip or a link here.
 	docker build -rm -t fuse .
 
 ## To run your Fuse image
@@ -31,7 +33,7 @@ Ex.
 - start sshd server:
 ```service sshd start```
 - start JBoss Fuse (example that uses the application user "fuse")
-```sudo -E -u fuse /opt/rh/jboss-fuse-full-6.0.0.redhat-024/bin/fuse```
+```sudo -E -u fuse /opt/rh/jboss-fuse-*/bin/fuse```
     
 #### Your first exercise:
 
@@ -44,7 +46,7 @@ docker run -t -i --name=fabric fuse
 
 - start fuse as the "fuse" user
 ```
-sudo -E -u fuse /opt/rh/jboss-fuse-6.0.0.redhat-024/bin/fuse
+sudo -E -u fuse /opt/rh/jboss-fuse-*/bin/fuse
 ```
 
 - create a new fabric with this command:

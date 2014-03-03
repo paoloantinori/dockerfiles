@@ -16,8 +16,8 @@
 
 FROM pantinor/fuse
 
-# since ideally this image wil lbe use for fabric nodes and for managed node, it doesn't start fuse automatically for you.
+# since ideally this image will be used for fabric nodes and for managed node, it doesn't start fuse automatically for you.
 # you can do it yourself with:
-# sudo -E -u fuse /opt/rh/jboss-fuse-6.0.0.redhat-024/bin/fuse
+# sudo -E -u fuse /opt/rh/jboss-fuse-*/bin/fuse
 
 CMD service sshd start ; bash --init-file /etc/bashrc

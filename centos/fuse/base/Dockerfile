@@ -27,12 +27,17 @@ ENV JAVA_HOME /usr/lib/jvm/jre
 #add a user for the application, with sudo permissions
 RUN useradd -m fuse ; echo fuse:fuse | chpasswd ; usermod -a -G wheel fuse
 
+#assigning higher default ulimits
+#unluckily this is not very portable. this values work only in the user running docker damon on the host as his own limits >= to these values
+#the risk is that the "su fuse" operation will fail otherwise
+RUN echo "fuse                -       nproc           4096" >> /etc/security/limits.conf
+RUN echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
+
 RUN mkdir -m 777 -p /opt/rh
 
-RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc
-RUN echo "alias ll='ls -l --color=auto'" >> /etc/bashrc
-RUN echo "alias grep='grep --color=auto'" >> /etc/bashrc
-
+RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/profile
+RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
+RUN echo "alias grep='grep --color=auto'" >> /etc/profile
 
 ONBUILD ADD . /root/
 ONBUILD RUN unzip -q -d /opt/rh /root/*.zip

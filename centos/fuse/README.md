@@ -101,6 +101,10 @@ alias sshi="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o P
 
 This step is needed only if you don't want to download the base image from Docker public registry:
 ```
-    cd base/
-    docker build -rm -t pantinor/fuse .
+    docker build -t pantinor/fuse https://raw.github.com/paoloantinori/dockerfiles/master/centos/fuse/base/Dockerfile
+
+    # or clone the repo and 
+    # cd base/
+    # docker build -rm -t pantinor/fuse .
+
 ```

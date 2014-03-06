@@ -26,15 +26,19 @@ This image supports different versions of JBoss Fuse distribution. The build pro
 	# you are expected to have either a copy of jboss-fuse-*.zip or a link here.
 	docker build -rm -t fuse .
 
-##### For a proper working behavior the user running the docker command should have ulimits values higher than the one set in the docker image, so let's assign them explicitly for the shell session. not needed if the numbers you get from `ulimit -a` are already bigger than `4096`. In case of bad behavior check what you have in `/etc/security/limits.conf`
+
+## To run your Fuse image
+	docker run -t -i fuse
+
+##### Note
+
+For a proper working behavior the user running the docker command should have ulimits values higher than the one set in the docker image, so let's assign them explicitly for the shell session. not needed if the numbers you get from `ulimit -a` are already bigger than `4096`. In case of bad behavior check what you have in `/etc/security/limits.conf`
     ulimit -u 4096
     ulimit -n 4096
     #if you receive an "operation not permitted error" invoke these 2 commands to give yourself higher limits
     sudo echo "$(whoami) - nproc 4096" >> /etc/security/limits.conf
     sudo echo "$(whoami) - nofile 4096" >> /etc/security/limits.conf
 
-## To run your Fuse image
-	docker run -t -i fuse
 
 ### Within the image you can
 - start sshd server:

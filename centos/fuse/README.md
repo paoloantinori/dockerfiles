@@ -91,6 +91,12 @@ ensemble-add zk1 zk2
 ensemble-list
 ```
 
+## suggestions
+You  may find this alias useful to avoid ssh warnins when it notices you are connecting to the same ip address that has a fingreprint differente than the last time
+```
+alias sshi="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password"
+```
+
 ## To build base image
 
 This step is needed only if you don't want to download the base image from Docker public registry:

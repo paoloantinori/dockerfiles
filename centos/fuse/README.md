@@ -22,7 +22,7 @@ Ex.
 This image supports different versions of JBoss Fuse distribution. The build process will exract in the Docker image all the zip files it will find in your working folder. Ideally you just want a single version present at the same time, like in the above example.
 
 ## To build your Fuse image:
-	cd fuse/fuse/
+	wget https://raw.github.com/paoloantinori/dockerfiles/master/centos/fuse/fuse/Dockerfile
 	# you are expected to have either a copy of jboss-fuse-*.zip or a link here.
 	docker build -rm -t fuse .
 

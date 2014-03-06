@@ -32,10 +32,15 @@ This image supports different versions of JBoss Fuse distribution. The build pro
 
 ##### Note
 
-For a proper working behavior the user running the docker command should have ulimits values higher than the one set in the docker image, so let's assign them explicitly for the shell session. not needed if the numbers you get from `ulimit -a` are already bigger than `4096`. In case of bad behavior check what you have in `/etc/security/limits.conf`
+For a proper working behavior the user running the docker command should have `ulimits` values higher than those  set in the docker image.  
+For this reason we assign them explicitly for the shell session.  
+Not needed if the numbers you get from `ulimit -a` are already larger than `4096`.  
+In case of bad behavior check what you have in `/etc/security/limits.conf`.  
+
+    # set ulimits in your shell
     ulimit -u 4096
     ulimit -n 4096
-    #if you receive an "operation not permitted error" invoke these 2 commands to give yourself higher limits
+    # if you receive an "operation not permitted error" invoke these 2 commands to give yourself higher limits
     sudo echo "$(whoami) - nproc 4096" >> /etc/security/limits.conf
     sudo echo "$(whoami) - nofile 4096" >> /etc/security/limits.conf
 
@@ -101,7 +106,12 @@ You  may find this alias useful to avoid ssh warnins when it notices you are con
 alias sshi="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password"
 ```
 
-## To build base image
+##### Other examples:
+
+https://github.com/paoloantinori/dockerfiles/tree/master/centos/fuse/examples
+
+
+##### To build base image
 
 This step is needed only if you don't want to download the base image from Docker public registry:
 ```

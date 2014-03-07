@@ -60,7 +60,10 @@ IP_FAB03=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' fab03)
 sleep 20
 
 
-### here you are starting to interact with Fuse/Karaf
+############################# here you are starting to interact with Fuse/Karaf
+# If you want to type the commands manually you have to connect to Karaf. You can do it either with ssh or with the "client" command.
+# Ex. 
+# ssh admin@$IP_ROOT 
 
 # create a new fabric
 ssh admin@$IP_ROOT "fabric:create --clean -r localip -g localip" 
@@ -70,7 +73,7 @@ sleep 30
 # show current containers
 ssh admin@$IP_ROOT "container-list"
 
-sleep 10
+sleep 90
 
 # provision fabric nodes
 ssh admin@$IP_ROOT "container-create-ssh --resolver localip --host $IP_FAB02 --user fuse  --path /opt/rh/fabric fab02"
@@ -82,11 +85,14 @@ ssh admin@$IP_ROOT "container-list"
 # show current ensemble
 ssh admin@$IP_ROOT "ensemble-list"
 
+# give fab03 some time to properly start up before trying to use it
+sleep 60
+
 # wait for them to be provisioned. check with container-list
 # join the node to the ensemble (-f to bypass the confirmation)
 ssh admin@$IP_ROOT "ensemble-add -f fab02 fab03"
 
-sleep 10
+sleep 5
 
 # show current ensemble
 ssh admin@$IP_ROOT "ensemble-list"

@@ -29,5 +29,7 @@ RUN yum install -y mongo-10gen mongo-10gen-server
 RUN mkdir -p /data/db
 #VOLUME ["/data/db"]
 
-CMD ["/usr/bin/mongod"]
+ENTRYPOINT ["/usr/bin/mongod"]
+
+CMD  ["--nojournal"]
 

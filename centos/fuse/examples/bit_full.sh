@@ -27,7 +27,6 @@
 # scary but it's just for better logging if you run with "sh -x"
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
-
 # ulimits values needed by the processes inside the container
 ulimit -u 4096
 ulimit -n 4096
@@ -37,20 +36,28 @@ ulimit -n 4096
 # remove old docker containers with the same names
 docker stop root  
 docker stop esb01 
-docker stop brok01 
+docker stop esb02
+docker stop fab03 
+docker stop fab02
 docker rm root 
 docker rm esb01 
-docker rm brok01 
+docker rm esb02 
+docker rm fab03 
+docker rm fab02 
 
 # create your lab
 docker run -d -t -i --name root fuse
 docker run -d -t -i --name esb01 fuse
-docker run -d -t -i --name brok01 fuse
+docker run -d -t -i --name esb02 fuse
+docker run -d -t -i --name fab03 fuse
+docker run -d -t -i --name fab02 fuse
 
 # assign ip addresses to env variable, despite they should be constant on the same machine across sessions
 IP_ROOT=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' root)
+IP_FAB03=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' fab03)
+IP_FAB02=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' fab02)
 IP_ESB01=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' esb01)
-IP_BROK01=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' brok01)
+IP_ESB02=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' esb02)
 
 
 ########### aliases to preconfigure ssh and scp verbose to type options
@@ -120,14 +127,26 @@ ssh2fabric  "fabric:profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax
 ssh2fabric  "import -v -t /fabric/configs/versions/1.0/profiles/mq-base/tru-broker.xml tru/tru-broker.xml"
 
 # provision fabric nodes
-ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_ESB01 --user fuse  --path /opt/rh/fabric esb01"
-ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_BROK01 --user fuse  --path /opt/rh/fabric brok01"
+ssh2fabric "container-create-ssh --resolver localip --host $IP_FAB02 --user fuse  --path /opt/rh/fabric fab02"
+ssh2fabric "container-create-ssh --resolver localip --host $IP_FAB03 --user fuse  --path /opt/rh/fabric fab03"
+
+ssh2fabric "ensemble-add -f fab02 fab03"
+
+sleep 5
+
+# workers
+ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_ESB01 --user fuse --path /opt/rh/fabric esb01"
+ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_ESB02 --user fuse --path /opt/rh/fabric esb02"
+# brokers
+ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_ESB01 --user fuse --path /opt/rh/fabric brok01"
+ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_ESB02 --user fuse --path /opt/rh/fabric brok02"
 
 # show current containers
 ssh2fabric "container-list"
 
+
 # create broker profile and add location of shared message store
-ssh2fabric "fabric:mq-create --assign-container brok01 --config tru-broker.xml tru-mq-profile"
+ssh2fabric "fabric:mq-create --assign-container brok01,brok02 --config tru-broker.xml tru-mq-profile"
 # previous command reports an error that can be ignored
 ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-tru-mq-profile/data=/opt/rh/fuse tru-mq-profile" 
 ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-tru-mq-profile/openwire-port=61616 tru-mq-profile"
@@ -139,6 +158,8 @@ ssh2fabric "shell:source /opt/rh/features-repo/com/truphone/esb/features/2.1.20/
 
 # apply the profile to esb01
 ssh2fabric "container-add-profile esb01 tru2-profile"
+# apply the profile to esb02
+ssh2fabric "container-add-profile esb02 tru2-profile"
 
 # install fmc
 ssh2fabric "container-add-profile root fmc"

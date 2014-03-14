@@ -121,7 +121,9 @@ sleep 90
 ssh2fabric "fabric:profile-create --parents camel --version 1.0 tru2-profile"
 
 # configure local maven
-ssh2fabric  "fabric:profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=\"file:///opt/rh/features-repo@id=tru\" default"
+ssh2fabric 'fabric:profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories="file:///opt/rh/features-repo@snapshots@name=tru@id=tru" default'
+# important! to disable maven snapshot checksum that otherwise will block the functionality
+ssh2fabric "fabric:profile-edit --pid org.fusesource.fabric.maven/checksumPolicy=warn  default "
 
 # import customised real time broker configuration
 ssh2fabric  "import -v -t /fabric/configs/versions/1.0/profiles/mq-base/tru-broker.xml tru/tru-broker.xml"

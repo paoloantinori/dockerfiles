@@ -68,7 +68,8 @@ alias ssh2esb01="sshpass -p admin $SSH_PATH -p 8101 -o UserKnownHostsFile=/dev/n
 alias scp="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
 
 
-
+# halt on errors
+set -e
 
 # start fuse on root node
 ssh2host "/opt/rh/jboss-fuse-6.0.0.redhat-024/bin/start" 

@@ -25,6 +25,8 @@ RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/U
 
 # enabling sudo group
 RUN echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
+# enabling sudo over ssh
+RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers
 
 ENV JAVA_HOME /usr/lib/jvm/jre
 

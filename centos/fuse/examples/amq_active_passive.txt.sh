@@ -21,7 +21,10 @@
 # - if you don't want to use docker, just assign to the ip addresses of your own boxes to environment variable
 #######################################################################################################
 
-# configure logging to print line number if you run this script with "sh -x"
+# set debug mode
+set -x
+
+# configure logging to print line numbers
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
 
@@ -86,13 +89,16 @@ ssh2host "/opt/rh/jboss-fuse-6.0.0.redhat-024/bin/start"
 
 ############################# here you are starting to interact with Fuse/Karaf
 
-# wait for important component to be available before progressing with the steps
-# ssh2fabric "wait-for-service -t 300000 org.linkedin.zookeeper.client.LifecycleListener"
+# wait for critical components to be available before progressing with other steps
+ssh2fabric "wait-for-service -t 300000 org.linkedin.zookeeper.client.LifecycleListener"
 ssh2fabric "wait-for-service -t 300000 org.fusesource.fabric.maven.MavenProxy"
 
 
 # create a new fabric AND wait for the Fabric to be up and ready to accept the following commands
 ssh2fabric "fabric:create --clean -r localip -g localip ; wait-for-service -t 300000 org.jolokia.osgi.servlet.JolokiaContext" 
+
+# stop default broker created automatically with fabric
+ssh2fabric "stop org.jboss.amq.mq-fabric" 
 
 # import broker xml configuration in zookeeper registry
 ssh2fabric  "import -v -t /fabric/configs/versions/1.0/profiles/mq-base/amq-configuration.xml /home/fuse/amq-configuration.xml"
@@ -123,7 +129,7 @@ ssh2fabric "container-create-ssh --resolver localip --host $IP_BROK02 --user fus
 # show current containers
 ssh2fabric "cluster-list"
 
-echo "<<<EOF
+echo "
 ----------------------------------------------------
 ActiveMQ Active/Passive Demo with shared data folder
 ----------------------------------------------------
@@ -136,19 +142,24 @@ BROKER 1:
 - ip: $IP_BROK01
 - ssh: ssh -o StrictHostKeyChecking=no fuse@$IP_BROK01
 - karaf: ssh -o StrictHostKeyChecking=no admin@$IP_BROK01 -p8101
+- hawtio: http://$IP_BROK01:8013/hawtio 
+          user/pass: admin/admin
 
 BROKER 2: 
 - ip: $IP_BROK02
 - ssh: ssh -o StrictHostKeyChecking=no fuse@$IP_BROK02
 - karaf: ssh -o StrictHostKeyChecking=no admin@$IP_BROK02 -p8101
+- hawtio: http://$IP_BROK01:8013/hawtio
+          user/pass: admin/admin
 
 ----------------------------------------------------
 Use command:
 
 cluster-list
 
-in Karaf on Fabric Root, to see the status of you Active/Passive ActiveMQ Cluster
+in Karaf on Fabric Root, to see the status of you Active/Passive ActiveMQ Cluster.
 
-EOF
+Note that only in Hawtio, only the active node will have ActiveMQ tab enabled
+
 "
 

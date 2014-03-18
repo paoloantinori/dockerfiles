@@ -114,20 +114,20 @@ Fuse Fabric 3 nodes demo
 ----------------------------------------------------
 FABRIC ROOT: 
 - ip:          $IP_ROOT
-- ssh:         ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
-- karaf:       ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
-- tail logs:   ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
+- ssh:         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ROOT
+- karaf:       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_ROOT -p8101
+- tail logs:   ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
 
 FABRIC 02: 
 - ip:         $IP_FAB02
-- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_FAB02
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_FAB02 -l fuse 'tail -F /opt/rh/fabric/fab02/fuse-fabric-*/data/log/karaf.log'
+- ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_FAB02
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_FAB02 -l fuse 'tail -F /opt/rh/fabric/fab02/fuse-fabric-*/data/log/karaf.log'
 
 FABRIC 03:  
 - ip:         $IP_FAB03
-- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_FAB03
-- karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_FAB03 -p8101
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_FAB03 -l fuse 'tail -F /opt/rh/fabric/fab03/fuse-fabric-*/data/log/karaf.log'
+- ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_FAB03
+- karaf:      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_FAB03 -p8101
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_FAB03 -l fuse 'tail -F /opt/rh/fabric/fab03/fuse-fabric-*/data/log/karaf.log'
 
 ----------------------------------------------------
 Use command:

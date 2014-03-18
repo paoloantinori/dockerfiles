@@ -114,9 +114,6 @@ ssh2fabric "wait-for-service -t 300000 org.fusesource.fabric.maven.MavenProxy"
 # create a new fabric AND wait for the Fabric to be up and ready to accept the following commands
 ssh2fabric "fabric:create --clean -r localip -g localip ; wait-for-service -t 300000 org.jolokia.osgi.servlet.JolokiaContext" 
 
-# stop default broker created automatically with fabric
-ssh2fabric "stop org.jboss.amq.mq-fabric" 
-
 # show current containers
 ssh2fabric "container-list"
 
@@ -130,6 +127,9 @@ ssh2fabric "fabric:profile-edit --pid org.fusesource.fabric.maven/checksumPolicy
 
 # import customised real time broker configuration
 ssh2fabric  "import -v -t /fabric/configs/versions/1.0/profiles/mq-base/tru-broker.xml tru/tru-broker.xml"
+
+# stop default broker created automatically with fabric
+ssh2fabric "stop org.jboss.amq.mq-fabric" 
 
 # provision fabric nodes
 ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_ESB01 --user fuse  --path /opt/rh/fabric esb01"
@@ -173,20 +173,20 @@ BIT Mini Lab
 ----------------------------------------------------
 FABRIC ROOT: 
 - ip:          $IP_ROOT
-- ssh:         ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
-- karaf:       ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
-- tail logs:   ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
+- ssh:         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ROOT
+- karaf:       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_ROOT -p8101
+- tail logs:   ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
 
 ESB 01: 
 - ip:         $IP_ESB01
-- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_ESB01
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_ESB01 -l fuse 'tail -F /opt/rh/fabric/esb01/fuse-fabric-*/data/log/karaf.log'
+- ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ESB01
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_ESB01 -l fuse 'tail -F /opt/rh/fabric/esb01/fuse-fabric-*/data/log/karaf.log'
 
 BROKER 01:  
 - ip:         $IP_BROK01
-- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_BROK01
-- karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK01 -p8101
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
+- ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_BROK01
+- karaf:      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8101
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
 
 ----------------------------------------------------
 Use command:

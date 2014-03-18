@@ -141,25 +141,25 @@ ActiveMQ Active/Passive Demo with shared data folder
 ----------------------------------------------------
 FABRIC ROOT: 
 - ip:          $IP_ROOT
-- ssh:         ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
-- karaf:       ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
-- tail logs:   ssh -o StrictHostKeyChecking=no fuse@172.17.0.2 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
+- ssh:         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ROOT
+- karaf:       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_ROOT -p8101
+- tail logs:   ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
 
 BROKER 1: 
 - ip:         $IP_BROK01
-- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_BROK01
-- karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK01 -p8101
+- ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_BROK01
+- karaf:      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8101
 - hawtio:     http://$IP_BROK01:8013/hawtio 
               user/pass: admin/admin
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
 
 BROKER 2: 
 - ip:         $IP_BROK02
-- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_BROK02
-- karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK02 -p8101
+- ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_BROK02
+- karaf:      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK02 -p8101
 - hawtio:     http://$IP_BROK02:8013/hawtio
               user/pass: admin/admin
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/brok02/fuse-fabric-*/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/brok02/fuse-fabric-*/data/log/karaf.log'
 
 ----------------------------------------------------
 Use command:

@@ -24,7 +24,10 @@
 #   increase those sleep time if you have to
 #######################################################################################################
 
-# scary but it's just for better logging if you run with "sh -x"
+# set debug mode
+set -x
+
+# configure logging to print line numbers
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
 
@@ -59,27 +62,25 @@ IP_BROK01=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' brok01)
 SSH_PATH=$(which ssh) 
 ### ssh aliases to remove some of the visual clutter in the rest of the script
 # alias to connect to your docker images
-alias ssh2host="$SSH_PATH -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR fuse@$IP_ROOT"
+alias ssh2host="$SSH_PATH -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR fuse@$IP_ROOT"
 # alias to connect to the ssh server exposed by JBoss Fuse. uses sshpass to script the password authentication
-alias ssh2fabric="sshpass -p admin $SSH_PATH -p 8101 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_ROOT"
+alias ssh2fabric="sshpass -p admin $SSH_PATH -o ConnectionAttempts=180 -p 8101 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_ROOT"
 # alias to connect to the ssh server exposed by JBoss Fuse. uses sshpass to script the password authentication
-alias ssh2esb01="sshpass -p admin $SSH_PATH -p 8101 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_ESB01"
+alias ssh2esb01="sshpass -p admin $SSH_PATH -o ConnectionAttempts=180 -p 8101 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_ESB01"
+alias ssh2brok01="sshpass -p admin $SSH_PATH -o ConnectionAttempts=180 -p 8101 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK01"
 # alias for scp to inline flags to disable ssh warnings
-alias scp="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
+alias scp="scp -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
 
 
 # halt on errors
 set -e
 
-# start fuse on root node
-ssh2host "/opt/rh/jboss-fuse-6.0.0.redhat-024/bin/start" 
-
-sleep 30
 
 ### deplooy code and properties
 
 # upload release
-scp ./esb-deployer-2.1.20.zip fuse@$IP_ROOT:/opt/rh/
+scp ./esb-deployer-*.zip fuse@$IP_ROOT:/opt/rh/
+VERSION=$(ls -1 esb-deployer-* |  cut -d '-' -f 3- | sed 's/\.zip//' )
 
 # extract the release
 ssh2host "unzip -u -o /opt/rh/*.zip -d /opt/rh"
@@ -96,20 +97,28 @@ ssh2host "unzip -u -o /opt/rh/properties.zip -d /opt/rh/jboss-fuse-*/tru/"
 # remove properties zip
 ssh2host "rm -f /opt/rh/properties.zip "
 
+
+# start fuse on root node
+ssh2host "/opt/rh/jboss-fuse-*/bin/start" 
+
+# wait for critical components to be available before progressing with other steps
+ssh2fabric "wait-for-service -t 300000 org.linkedin.zookeeper.client.LifecycleListener"
+ssh2fabric "wait-for-service -t 300000 org.fusesource.fabric.maven.MavenProxy"
+
+
 ############################# here you are starting to interact with Fuse/Karaf
 # If you want to type the commands manually you have to connect to Karaf. You can do it either with ssh or with the "client" command.
 # Ex. 
 # ssh2fabric 
 
-# create a new fabric
-ssh2fabric "fabric:create --clean -r localip -g localip" 
+# create a new fabric AND wait for the Fabric to be up and ready to accept the following commands
+ssh2fabric "fabric:create --clean -r localip -g localip ; wait-for-service -t 300000 org.jolokia.osgi.servlet.JolokiaContext" 
 
-sleep 30
+# stop default broker created automatically with fabric
+ssh2fabric "stop org.jboss.amq.mq-fabric" 
 
 # show current containers
 ssh2fabric "container-list"
-
-sleep 90
 
 # create base tru2 profile
 ssh2fabric "fabric:profile-create --parents camel --version 1.0 tru2-profile"
@@ -126,6 +135,10 @@ ssh2fabric  "import -v -t /fabric/configs/versions/1.0/profiles/mq-base/tru-brok
 ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_ESB01 --user fuse  --path /opt/rh/fabric esb01"
 ssh2fabric "container-create-ssh --jvm-opts \"-XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xms512m -Xmx1024m\" --resolver localip --host $IP_BROK01 --user fuse  --path /opt/rh/fabric brok01"
 
+# wait for containers to be ready
+ssh2esb01  "wait-for-service -t 300000 org.apache.karaf.features.FeaturesService"
+ssh2brok01 "wait-for-service -t 300000 org.apache.karaf.features.FeaturesService"
+
 # show current containers
 ssh2fabric "container-list"
 
@@ -137,8 +150,10 @@ ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-tru-mq-pro
 ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-tru-mq-profile/broker-name=tru tru-mq-profile"
 ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-tru-mq-profile/group=truphone-broker tru-mq-profile"
 
-# invoke our karaf scripts
-ssh2fabric "shell:source /opt/rh/features-repo/com/truphone/esb/features/2.1.20/esb-profile-tru2.karaf"
+# invoke our karaf scripts (double since snapshot and not snapshots create 2 different naming convention files. just one will work)
+ssh2fabric "shell:source /opt/rh/features-repo/com/truphone/esb/features/$VERSION/esb-profile-tru2.karaf"
+ssh2fabric "shell:source /opt/rh/features-repo/com/truphone/esb/features/$VERSION/features-$VERSION-profile-tru2.karaf"
+
 
 # apply the profile to esb01
 ssh2fabric "container-add-profile esb01 tru2-profile"
@@ -151,13 +166,33 @@ sleep 15
 # list content of esb01
 ssh2esb01 "list | grep ESB"
 
-sleep 5
 
-# apply patches
-firefox "http://$IP_ROOT:8181/"
+echo "
+----------------------------------------------------
+BIT Mini Lab
+----------------------------------------------------
+FABRIC ROOT: 
+- ip:          $IP_ROOT
+- ssh:         ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
+- karaf:       ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
+- tail logs:   ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
 
+ESB 01: 
+- ip:         $IP_ESB01
+- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_ESB01
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_ESB01 -l fuse 'tail -F /opt/rh/fabric/esb01/fuse-fabric-*/data/log/karaf.log'
 
+BROKER 01:  
+- ip:         $IP_BROK01
+- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_BROK01
+- karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK01 -p8101
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
 
+----------------------------------------------------
+Use command:
+	
+firefox http://$IP_ROOT:8181/
 
-# sshi fuse@172.17.0.2 "tail -F /opt/rh/jboss-fuse-6.0.0.redhat-024/data/log/fuse.log" | h -i error zip warn
-# [ 128] [Active     ] [Created     ] [       ] [   60] JBoss A-MQ Fabric (6.0.0.redhat-024)
+From command line to access FMC console if you want to apply patches
+
+"

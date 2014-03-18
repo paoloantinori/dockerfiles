@@ -90,7 +90,7 @@ ssh fuse@$IP_BROK02 "mkdir -p /opt/rh/data ; sudo chown fuse:fuse /opt/rh/data"
 scp resources/amq-configuration.xml fuse@$IP_ROOT:/home/fuse/
 
 # start fuse on root node (yes, that initial backslash is required to not use the declared alias)
-ssh2host "/opt/rh/jboss-fuse-6.0.0.redhat-024/bin/start"
+ssh2host "/opt/rh/jboss-fuse-*/bin/start"
 
 
 ############################# here you are starting to interact with Fuse/Karaf
@@ -143,7 +143,7 @@ FABRIC ROOT:
 - ip:          $IP_ROOT
 - ssh:         ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
 - karaf:       ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
-- tail logs:   ssh -o StrictHostKeyChecking=no fuse@172.17.0.2 'tail -F /opt/rh/jboss-fuse-6.0.0.redhat-024/data/log/fuse.log'
+- tail logs:   ssh -o StrictHostKeyChecking=no fuse@172.17.0.2 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
 
 BROKER 1: 
 - ip:         $IP_BROK01
@@ -151,7 +151,7 @@ BROKER 1:
 - karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK01 -p8101
 - hawtio:     http://$IP_BROK01:8013/hawtio 
               user/pass: admin/admin
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-7.2.0.redhat-024/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
 
 BROKER 2: 
 - ip:         $IP_BROK02
@@ -159,7 +159,7 @@ BROKER 2:
 - karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK02 -p8101
 - hawtio:     http://$IP_BROK02:8013/hawtio
               user/pass: admin/admin
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/brok02/fuse-fabric-7.2.0.redhat-024/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/brok02/fuse-fabric-*/data/log/karaf.log'
 
 ----------------------------------------------------
 Use command:

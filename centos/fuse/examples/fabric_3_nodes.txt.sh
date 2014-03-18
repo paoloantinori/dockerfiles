@@ -78,7 +78,7 @@ alias ssh2fab03="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o
 set -e
 
 # start fuse on root node (yes, that initial backslash is required to not use the declared alias)
-ssh2host "/opt/rh/jboss-fuse-6.0.0.redhat-024/bin/start"
+ssh2host "/opt/rh/jboss-fuse-*/bin/start"
 
 
 ############################# here you are starting to interact with Fuse/Karaf
@@ -116,18 +116,18 @@ FABRIC ROOT:
 - ip:          $IP_ROOT
 - ssh:         ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
 - karaf:       ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
-- tail logs:   ssh -o StrictHostKeyChecking=no fuse@172.17.0.2 'tail -F /opt/rh/jboss-fuse-6.0.0.redhat-024/data/log/fuse.log'
+- tail logs:   ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
 
 FABRIC 02: 
 - ip:         $IP_FAB02
 - ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_FAB02
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_FAB02 -l fuse 'tail -F /opt/rh/fabric/fab02/fuse-fabric-7.2.0.redhat-024/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_FAB02 -l fuse 'tail -F /opt/rh/fabric/fab02/fuse-fabric-*/data/log/karaf.log'
 
 FABRIC 03:  
 - ip:         $IP_FAB03
 - ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_FAB03
 - karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_FAB03 -p8101
-- tail logs:  ssh -o StrictHostKeyChecking=no $IP_FAB03 -l fuse 'tail -F /opt/rh/fabric/fab03/fuse-fabric-7.2.0.redhat-024/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_FAB03 -l fuse 'tail -F /opt/rh/fabric/fab03/fuse-fabric-*/data/log/karaf.log'
 
 ----------------------------------------------------
 Use command:

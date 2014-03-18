@@ -2,12 +2,18 @@
 
 ##########################################################################################################
 # Description:
+# This example will guide you to provision a Fabric node + 2 ActiveMQ managed nodes
+# configured in Active/Passive mode with shared data. With this setup you will be able to send
+# messages to the node that is active, try to stop or to kill that node, and to see that the
+# other node will get promoted to active and that it will be able to see all the messages and destinations
+# created by the other node.
 #
 # Dependencies:
 # - docker 
 # - sshpass, used to avoid typing the pass everytime (not needed if you are invoking the commands manually)
 # to install on Fedora/Centos/Rhel: 
 # sudo yum install -y docker-io sshpass
+#
 # to install on MacOSX:
 # sudo port install sshpass
 # or
@@ -134,23 +140,26 @@ echo "
 ActiveMQ Active/Passive Demo with shared data folder
 ----------------------------------------------------
 FABRIC ROOT: 
-- ip: $IP_ROOT
-- ssh: ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
-- karaf: ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
+- ip:          $IP_ROOT
+- ssh:         ssh -o StrictHostKeyChecking=no fuse@$IP_ROOT
+- karaf:       ssh -o StrictHostKeyChecking=no admin@$IP_ROOT -p8101
+- tail logs:   ssh -o StrictHostKeyChecking=no fuse@172.17.0.2 'tail -F /opt/rh/jboss-fuse-6.0.0.redhat-024/data/log/fuse.log'
 
 BROKER 1: 
-- ip: $IP_BROK01
-- ssh: ssh -o StrictHostKeyChecking=no fuse@$IP_BROK01
-- karaf: ssh -o StrictHostKeyChecking=no admin@$IP_BROK01 -p8101
-- hawtio: http://$IP_BROK01:8013/hawtio 
-          user/pass: admin/admin
+- ip:         $IP_BROK01
+- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_BROK01
+- karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK01 -p8101
+- hawtio:     http://$IP_BROK01:8013/hawtio 
+              user/pass: admin/admin
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-7.2.0.redhat-024/data/log/karaf.log'
 
 BROKER 2: 
-- ip: $IP_BROK02
-- ssh: ssh -o StrictHostKeyChecking=no fuse@$IP_BROK02
-- karaf: ssh -o StrictHostKeyChecking=no admin@$IP_BROK02 -p8101
-- hawtio: http://$IP_BROK01:8013/hawtio
-          user/pass: admin/admin
+- ip:         $IP_BROK02
+- ssh:        ssh -o StrictHostKeyChecking=no fuse@$IP_BROK02
+- karaf:      ssh -o StrictHostKeyChecking=no admin@$IP_BROK02 -p8101
+- hawtio:     http://$IP_BROK02:8013/hawtio
+              user/pass: admin/admin
+- tail logs:  ssh -o StrictHostKeyChecking=no $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/brok02/fuse-fabric-7.2.0.redhat-024/data/log/karaf.log'
 
 ----------------------------------------------------
 Use command:

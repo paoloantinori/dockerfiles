@@ -24,6 +24,11 @@
 #   increase those sleep time if you have to
 #######################################################################################################
 
+
+################################################################################################
+#####             Preconfiguration and helper functions. Skip if not interested.           #####
+################################################################################################
+
 # scary but it's just for better logging if you run with "sh -x"
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
@@ -77,6 +82,11 @@ alias scp="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o Pr
 
 # halt on errors
 set -e
+
+
+################################################################################################
+#####                             Tutorial starts here                                     #####
+################################################################################################
 
 # start fuse on root node
 ssh2host "/opt/rh/jboss-fuse-6.0.0.redhat-024/bin/start" 

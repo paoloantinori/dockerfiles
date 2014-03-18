@@ -24,6 +24,11 @@
 #   increase those sleep time if you have to
 #######################################################################################################
 
+
+################################################################################################
+#####             Preconfiguration and helper functions. Skip if not interested.           #####
+################################################################################################
+
 # set debug mode
 set -x
 
@@ -76,7 +81,12 @@ alias scp="scp -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o Stri
 set -e
 
 
-### deplooy code and properties
+################################################################################################
+#####                             Tutorial starts here                                     #####
+################################################################################################
+
+
+### deploy code and properties
 
 # upload release
 scp ./esb-deployer-*.zip fuse@$IP_ROOT:/opt/rh/

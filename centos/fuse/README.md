@@ -1,36 +1,25 @@
 # Docker images to setup a Red Hat JBoss Fuse test environment.
 
 ## NOTE:
-This step require you to download JBoss Fuse distribution from 
+If you clone this repo This step require you to download JBoss Fuse distribution from 
 
 http://www.jboss.org/products/fuse
 
-And to save it inside the fuse/fuse folder.
-
-Ex.
-```
-    $ find fuse/
-    fuse/
-    fuse/base
-    fuse/base/Dockerfile
-    fuse/fuse
-    fuse/fuse/jboss-fuse-full-6.0.0.redhat-024.zip
-    fuse/fuse/Dockerfile
-    fuse/README.md
-```
-
-This image supports different versions of JBoss Fuse distribution. The build process will exract in the Docker image all the zip files it will find in your working folder. Ideally you just want a single version present at the same time, like in the above example.
+This image supports different versions of JBoss Fuse distribution, you may use it to test also beta versions of the product. The build process will extract in the Docker image all the zip files it will find in your working folder. If it finds more than a file it will put all of them inside the  Docker it's going to be created. Most of the time you will want to have just a single zip file. 
 
 ## To build your Fuse image:
 	wget https://raw.github.com/paoloantinori/dockerfiles/master/centos/fuse/fuse/Dockerfile
-	# you are expected to have either a copy of jboss-fuse-*.zip or a link here.
-	docker build -rm -t fuse .
+    # check if base image has been updated
+	docker pull pantinor/fuse
+	# build your docker fuse image. you are expected to have either a copy of jboss-fuse-*.zip or a link to that file in the current folder.
+    docker build -rm -t fuse .
 
 
 ## To run your Fuse image
 	docker run -t -i fuse
 
-##### Note
+
+##### Note - ulimits
 
 For a proper working behavior the user running the docker command should have `ulimits` values higher than those  set in the docker image.  
 For this reason we assign them explicitly for the shell session.  

@@ -27,6 +27,11 @@
 # - if you don't want to use docker, just assign to the ip addresses of your own boxes to environment variable
 #######################################################################################################
 
+
+################################################################################################
+#####             Preconfiguration and helper functions. Skip if not interested.           #####
+################################################################################################
+
 # set debug mode
 set -x
 
@@ -82,11 +87,17 @@ alias scp="scp -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o Stri
 # halt on errors
 set -e
 
-# create shared data folder inside the container and assign permissions
+
+################################################################################################
+#####                             Tutorial starts here                                     #####
+################################################################################################
+
+
+# create shared data folder inside docker container and assign permissions
 ssh fuse@$IP_BROK01 "mkdir -p /opt/rh/data ; sudo chown fuse:fuse /opt/rh/data" 
 ssh fuse@$IP_BROK02 "mkdir -p /opt/rh/data ; sudo chown fuse:fuse /opt/rh/data" 
 
-# upload amq configuration to container
+# upload amq configuration to docker container
 scp resources/amq-configuration.xml fuse@$IP_ROOT:/home/fuse/
 
 # start fuse on root node (yes, that initial backslash is required to not use the declared alias)

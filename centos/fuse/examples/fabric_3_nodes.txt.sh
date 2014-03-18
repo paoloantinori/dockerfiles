@@ -28,6 +28,12 @@
 # - if you don't want to use docker, just assign to the ip addresses of your own boxes to environment variable
 #######################################################################################################
 
+
+################################################################################################
+#####             Preconfiguration and helper functions. Skip if not interested.           #####
+################################################################################################
+
+
 # set debug mode
 set -x
 
@@ -73,9 +79,14 @@ alias ssh2fabric="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -
 alias ssh2fab02="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_FAB02"
 alias ssh2fab03="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_FAB03"
 
-
 # halt on errors
 set -e
+
+
+
+################################################################################################
+#####                             Tutorial starts here                                     #####
+################################################################################################
 
 # start fuse on root node (yes, that initial backslash is required to not use the declared alias)
 ssh2host "/opt/rh/jboss-fuse-*/bin/start"

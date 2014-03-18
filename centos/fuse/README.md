@@ -14,9 +14,16 @@ This image supports different versions of JBoss Fuse distribution, you may use i
 	# build your docker fuse image. you are expected to have either a copy of jboss-fuse-*.zip or a link to that file in the current folder.
     docker build -rm -t fuse .
 
+## Multiple images with different Fuse versions
+    # same steps than above. just, copy the different JBoss Fuse distribution in the working folder and build the image assigning a different name
+    # assuming jboss-fuse-minimal-6.1.0.redhat-328.zip in the working folder
+    docker build -rm -t fuse6.1 .
+
 
 ## To run your Fuse image
 	docker run -t -i fuse
+    # or 
+    docker run -t -i fuse6.1
 
 
 ##### Note - ulimits
@@ -39,6 +46,7 @@ In case of bad behavior check what you have in `/etc/security/limits.conf`.
 ```service sshd start```
 - start JBoss Fuse (example that uses the application user "fuse")
 ```sudo -u fuse /opt/rh/jboss-fuse-*/bin/fuse```
+- install whatever you want with `yum install` since you have root access
     
 #### Your first exercise:
 

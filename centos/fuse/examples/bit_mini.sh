@@ -176,7 +176,7 @@ sleep 15
 # list content of esb01
 ssh2esb01 "list | grep ESB"
 
-
+set +x
 echo "
 ----------------------------------------------------
 BIT Mini Lab

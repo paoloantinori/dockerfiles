@@ -88,7 +88,7 @@ set -e
 #####                             Tutorial starts here                                     #####
 ################################################################################################
 
-# start fuse on root node (yes, that initial backslash is required to not use the declared alias)
+# start fuse on root node 
 ssh2host "/opt/rh/jboss-fuse-*/bin/start"
 
 
@@ -118,7 +118,7 @@ ssh2fab03 "wait-for-service -t 300000 org.apache.karaf.features.FeaturesService"
 # join the node to the ensemble (-f to bypass the confirmation)
 ssh2fabric "ensemble-add -f fab02 fab03"
 
-
+set +x
 echo "
 ----------------------------------------------------
 Fuse Fabric 3 nodes demo

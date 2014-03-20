@@ -3,8 +3,10 @@
 ##########################################################################################################
 # Description:
 # This example will guide you to provision a Fabric node + 2 ActiveMQ managed nodes
-# 
-# See http://tmielke.blogspot.co.uk/2013/08/creating-activemq-broker-cluster.html
+# configured in Active/Passive mode with shared data. With this setup you will be able to send
+# messages to the node that is active, try to stop or to kill that node, and to see that the
+# other node will get promoted to active and that it will be able to see all the messages and destinations
+# created by the other node.
 #
 # Dependencies:
 # - docker 
@@ -52,13 +54,11 @@ docker rm root
 docker rm brok01 
 docker rm brok02 
 
-# create shared folder used by the 2 instances of the broker to share same data
-rm -rf ./demo_shared_data ; mkdir -p ./demo_shared_data ; chmod o+rwx ./demo_shared_data
 
 # create your lab
 docker run -d -t -i --name root fuse
-docker run -d -t -i --name brok01 -v ./demo_shared_data:/opt/rh/data fuse
-docker run -d -t -i --name brok02 -v ./demo_shared_data:/opt/rh/data fuse
+docker run -d -t -i --name brok01 fuse
+docker run -d -t -i --name brok02 fuse
 
 # assign ip addresses to env variable, despite they should be constant on the same machine across sessions
 IP_ROOT=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' root)
@@ -76,8 +76,8 @@ alias ssh2host="$SSH_PATH -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=
 # alias to connect to the ssh server exposed by JBoss Fuse. uses sshpass to script the password authentication
 alias ssh2fabric="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_ROOT"
 # alias to connect to the ssh server exposed by JBoss Fuse. uses sshpass to script the password authentication
-alias ssh2brok01="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK01"
-alias ssh2brok02="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK02"
+alias ssh2brok01_1="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK01"
+alias ssh2brok02_1="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK02"
 # alias for scp to inline flags to disable ssh warnings
 alias scp="scp -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
 
@@ -90,13 +90,6 @@ set -e
 #####                             Tutorial starts here                                     #####
 ################################################################################################
 
-
-# create shared data folder inside docker container and assign permissions
-ssh fuse@$IP_BROK01 "mkdir -p /opt/rh/data ; sudo chown fuse:fuse /opt/rh/data" 
-ssh fuse@$IP_BROK02 "mkdir -p /opt/rh/data ; sudo chown fuse:fuse /opt/rh/data" 
-
-# upload amq configuration to docker container
-scp resources/amq-configuration.xml fuse@$IP_ROOT:/home/fuse/
 
 # start fuse on root node (yes, that initial backslash is required to not use the declared alias)
 ssh2host "/opt/rh/jboss-fuse-*/bin/start"
@@ -115,31 +108,36 @@ ssh2fabric "fabric:create --clean -r localip -g localip ; wait-for-service -t 30
 # stop default broker created automatically with fabric
 ssh2fabric "stop org.jboss.amq.mq-fabric" 
 
-# import broker xml configuration in zookeeper registry
-ssh2fabric  "import -v -t /fabric/configs/versions/1.0/profiles/mq-base/amq-configuration.xml /home/fuse/amq-configuration.xml"
 
 
 # create broker profile and add location of shared message store
-ssh2fabric "fabric:mq-create my_broker_profile"
+ssh2fabric "fabric:mq-create --group network-brokers1 --networks network-brokers2 --networks-password admin --networks-username admin MasterSlaveBroker1"
+ssh2fabric "fabric:mq-create --group network-brokers2 --networks network-brokers1 --networks-password admin --networks-username admin MasterSlaveBroker2"
 
-# assign values for the placeholders in amq-configuration.xml (externalized since you may want different values in dev and in prod )
-ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-my_broker_profile/data=/opt/rh/data           my_broker_profile"
-ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-my_broker_profile/openwire-port=61616         my_broker_profile"
-ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-my_broker_profile/broker-name=my_broker       my_broker_profile"
-ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-my_broker_profile/group=my_group              my_broker_profile"
-ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-my_broker_profile/config=zk:/fabric/configs/versions/1.0/profiles/mq-base/amq-configuration.xml my_broker_profile"
+ssh2fabric "container-create-ssh --resolver localip --host $IP_BROK01 --user fuse  --path /opt/rh/fabric --profile MasterSlaveBroker1 broker1_ 2"
+ssh2fabric "container-create-ssh --resolver localip --host $IP_BROK02 --user fuse  --path /opt/rh/fabric --profile MasterSlaveBroker2 broker2_ 2"
+
+
+ssh2brok01_1 "wait-for-service -t 300000 org.apache.geronimo.transaction.manager.RecoverableTransactionManager"
+ssh2brok02_1 "wait-for-service -t 300000 org.apache.geronimo.transaction.manager.RecoverableTransactionManager"
 
 
 # remove hawtio and install newer version
-ssh2fabric "fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port=8013 my_broker_profile"
-ssh2fabric "fabric:profile-edit --delete -r mvn:io.hawt/hawtio-karaf/1.0/xml/features my_broker_profile"
-ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.2/xml/features my_broker_profile"
-ssh2fabric "fabric:profile-edit --features hawtio-core my_broker_profile"
+ssh2fabric "fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port=8013 MasterSlaveBroker1"
+ssh2fabric "fabric:profile-edit --delete -r mvn:io.hawt/hawtio-karaf/1.0/xml/features MasterSlaveBroker1"
+ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.2/xml/features MasterSlaveBroker1"
+ssh2fabric "fabric:profile-edit --features hawtio-core MasterSlaveBroker1"
+
+ssh2fabric "fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port=8013 MasterSlaveBroker2"
+ssh2fabric "fabric:profile-edit --delete -r mvn:io.hawt/hawtio-karaf/1.0/xml/features MasterSlaveBroker2"
+ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.2/xml/features MasterSlaveBroker2"
+ssh2fabric "fabric:profile-edit --features hawtio-core MasterSlaveBroker2"
+
 
 
 # provision container nodes
-ssh2fabric "container-create-ssh --resolver localip --host $IP_BROK01 --user fuse  --path /opt/rh/fabric --profile my_broker_profile brok01"
-ssh2fabric "container-create-ssh --resolver localip --host $IP_BROK02 --user fuse  --path /opt/rh/fabric --profile my_broker_profile brok02"
+#ssh2fabric "container-create-ssh --resolver localip --host $IP_BROK01 --user fuse  --path /opt/rh/fabric --profile my_broker_profile brok01"
+#ssh2fabric "container-create-ssh --resolver localip --host $IP_BROK02 --user fuse  --path /opt/rh/fabric --profile my_broker_profile brok02"
 
 # show current containers
 ssh2fabric "cluster-list"
@@ -147,7 +145,7 @@ ssh2fabric "cluster-list"
 set +x
 echo "
 ----------------------------------------------------
-ActiveMQ Active/Passive Demo with shared data folder
+Broker network with two interconnected Master/Slave pairs
 ----------------------------------------------------
 FABRIC ROOT: 
 - ip:          $IP_ROOT
@@ -158,29 +156,31 @@ FABRIC ROOT:
 BROKER 1: 
 - ip:         $IP_BROK01
 - ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_BROK01
-- karaf:      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8101
+- karaf node1 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8101
+- karaf node2 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8102
 - hawtio:     http://$IP_BROK01:8013/hawtio 
               user/pass: admin/admin
-- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/broker1_1/fuse-fabric-*/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/broker1_2/fuse-fabric-*/data/log/karaf.log'
 
 BROKER 2: 
 - ip:         $IP_BROK02
 - ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_BROK02
-- karaf:      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK02 -p8101
+- karaf node1 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK02 -p8101
+- karaf node2 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK02 -p8102
 - hawtio:     http://$IP_BROK02:8013/hawtio
               user/pass: admin/admin
-- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/brok02/fuse-fabric-*/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/broker2_1/fuse-fabric-*/data/log/karaf.log'
+- tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/broker2_2/fuse-fabric-*/data/log/karaf.log'
 
 ----------------------------------------------------
 Use command:
 
 cluster-list
 
-in Karaf on Fabric Root, to see the status of your Active/Passive ActiveMQ Cluster.
+in Karaf on Fabric Root, to see the status of your ActiveMQ Cluster.
 
-Note that in Hawtio, only the active node will have ActiveMQ tab enabled
-
-See http://tmielke.blogspot.co.uk/2013/08/creating-activemq-broker-cluster.html
+See: http://tmielke.blogspot.co.uk/2013/08/creating-activemq-broker-cluster.html
 
 "
 

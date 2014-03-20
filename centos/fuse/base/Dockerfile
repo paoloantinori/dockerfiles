@@ -34,8 +34,8 @@ ENV JAVA_HOME /usr/lib/jvm/jre
 RUN useradd -m fuse ; echo fuse: | chpasswd ; usermod -a -G wheel fuse
 
 # assigning higher default ulimits
-# unluckily this is not very portable. this values work only in the user running docker damon on the host as his own limits >= to these values
-# the risk is that the "su fuse" operation will fail otherwise
+# unluckily this is not very portable. these values work only if the user running docker daemon on the host has his own limits >= than values set here
+# if they are not, the risk is that the "su fuse" operation will fail
 RUN echo "fuse                -       nproc           4096" >> /etc/security/limits.conf
 RUN echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
 
@@ -47,7 +47,7 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/profile
 RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
 RUN echo "alias grep='grep --color=auto'" >> /etc/profile
 
-# onbuild instructions are invoked only while building another image that inherits from this one
+# onbuild instructions are invoked only while building another image that inherits from this one.
 # jboss fuse specific interaction
 ONBUILD ADD . /root/
 ONBUILD RUN unzip -q -d /opt/rh /root/*.zip
@@ -57,4 +57,4 @@ ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/jboss-fuse-*/etc/users.properties
 
 WORKDIR /opt/rh
 
-CMD echo "This is just a abstract image that provides java and ssh. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"
+CMD echo "This is just an abstract image that provides java and ssh. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"

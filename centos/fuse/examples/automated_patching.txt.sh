@@ -52,9 +52,12 @@ docker stop root
 
 docker rm root 
  
+# expose ports to localhost, uncomment to enable always
+# EXPOSE_PORTS="-P"
+if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
 
 # create your lab
-docker run -d -t -i --name root fuse
+docker run -d -t -i $EXPOSE_PORTS --name root fuse
 
 
 # assign ip addresses to env variable, despite they should be constant on the same machine across sessions
@@ -197,6 +200,7 @@ FABRIC ROOT:
 - karaf:       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_ROOT -p8101
 - tail logs:   ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_ROOT 'tail -F /opt/rh/jboss-fuse-*/data/log/fuse.log'
 
+NOTE: If you are using Docker in a VM you may need extra config to route the traffic to the containers. One way to bypass this can be setting the environment variable EXPOSE_PORTS=true before running this script and than to use 'docker ps' to discover the exposed ports on your localhost.
 ----------------------------------------------------
 Use command:
 

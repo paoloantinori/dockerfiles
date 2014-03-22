@@ -50,12 +50,16 @@ docker rm esb02
 docker rm fab03 
 docker rm fab02 
 
+# expose ports to localhost, uncomment to enable always
+# EXPOSE_PORTS="-P"
+if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
+
 # create your lab
-docker run -d -t -i --name root fuse
-docker run -d -t -i --name esb01 fuse
-docker run -d -t -i --name esb02 fuse
-docker run -d -t -i --name fab03 fuse
-docker run -d -t -i --name fab02 fuse
+docker run -d -t -i $EXPOSE_PORTS --name root fuse
+docker run -d -t -i $EXPOSE_PORTS --name esb01 fuse
+docker run -d -t -i $EXPOSE_PORTS --name esb02 fuse
+docker run -d -t -i $EXPOSE_PORTS --name fab03 fuse
+docker run -d -t -i $EXPOSE_PORTS --name fab02 fuse
 
 # assign ip addresses to env variable, despite they should be constant on the same machine across sessions
 IP_ROOT=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' root)

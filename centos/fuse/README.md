@@ -8,10 +8,13 @@ http://www.jboss.org/products/fuse
 This image supports different versions of JBoss Fuse distribution, you may use it to test also beta versions of the product. The build process will extract in the Docker image all the zip files it will find in your working folder. If it finds more than a file it will put all of them inside the  Docker it's going to be created. Most of the time you will want to have just a single zip file. 
 
 ## To build your Fuse image:
+    # download docker file
 	wget https://raw.github.com/paoloantinori/dockerfiles/master/centos/fuse/fuse/Dockerfile
+    
     # check if base image has been updated
 	docker pull pantinor/fuse
-	# build your docker fuse image. you are expected to have either a copy of jboss-fuse-*.zip or a link to that file in the current folder.
+	
+    # build your docker fuse image. you are expected to have either a copy of jboss-fuse-*.zip or a link to that file in the current folder.
     docker build -rm -t fuse .
 
 ## Multiple images with different Fuse versions
@@ -21,10 +24,23 @@ This image supports different versions of JBoss Fuse distribution, you may use i
 
 
 ## To run your Fuse image
-	docker run -t -i fuse
+    docker run -t -i fuse
     # or 
     docker run -t -i fuse6.1
 
+## To expose ports on localhost. Useful if you run docker in a VM like if you are on MacOSX or on Windows
+    docker run -t -i -P fuse
+    # and then to discover them 
+    docker ps
+
+## To run the examples
+    sh name_of_script.sh
+
+    # if you need to automatically expose ports on localhost (handy if you run docker daemon in a vm, like if you are using MacOSX or Windows)
+    EXPOSE_PORTS=true sh name_of_script.sh
+    
+    # to discover the exposed ports
+    docker ps
 
 ##### Note - ulimits
 

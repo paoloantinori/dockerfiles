@@ -55,10 +55,14 @@ docker rm brok02
 # create shared folder used by the 2 instances of the broker to share same data
 rm -rf ./demo_shared_data ; mkdir -p ./demo_shared_data ; chmod o+rwx ./demo_shared_data
 
+# expose ports to localhost, uncomment to enable always
+# EXPOSE_PORTS="-P"
+if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
+
 # create your lab
-docker run -d -t -i --name root fuse
-docker run -d -t -i --name brok01 -v ./demo_shared_data:/opt/rh/data fuse
-docker run -d -t -i --name brok02 -v ./demo_shared_data:/opt/rh/data fuse
+docker run -d -t -i $EXPOSE_PORTS --name root fuse
+docker run -d -t -i $EXPOSE_PORTS --name brok01 -v ./demo_shared_data:/opt/rh/data fuse
+docker run -d -t -i $EXPOSE_PORTS --name brok02 -v ./demo_shared_data:/opt/rh/data fuse
 
 # assign ip addresses to env variable, despite they should be constant on the same machine across sessions
 IP_ROOT=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' root)
@@ -171,6 +175,7 @@ BROKER 2:
               user/pass: admin/admin
 - tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/brok02/fuse-fabric-*/data/log/karaf.log'
 
+NOTE: If you are using Docker in a VM you may need extra config to route the traffic to the containers. One way to bypass this can be setting the environment variable EXPOSE_PORTS=true before running this script and than to use 'docker ps' to discover the exposed ports on your localhost.
 ----------------------------------------------------
 Use command:
 

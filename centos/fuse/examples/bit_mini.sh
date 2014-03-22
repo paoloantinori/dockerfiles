@@ -50,10 +50,14 @@ docker rm root
 docker rm esb01 
 docker rm brok01 
 
+# expose ports to localhost, uncomment to enable always
+# EXPOSE_PORTS="-P"
+if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
+
 # create your lab
-docker run -d -t -i --name root fuse
-docker run -d -t -i --name esb01 fuse
-docker run -d -t -i --name brok01 fuse
+docker run -d -t -i $EXPOSE_PORTS --name root fuse
+docker run -d -t -i $EXPOSE_PORTS --name esb01 fuse
+docker run -d -t -i $EXPOSE_PORTS --name brok01 fuse
 
 # assign ip addresses to env variable, despite they should be constant on the same machine across sessions
 IP_ROOT=$(docker inspect -format '{{ .NetworkSettings.IPAddress }}' root)
@@ -198,6 +202,7 @@ BROKER 01:
 - karaf:      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8101
 - tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/brok01/fuse-fabric-*/data/log/karaf.log'
 
+NOTE: If you are using Docker in a VM you may need extra config to route the traffic to the containers. One way to bypass this can be setting the environment variable EXPOSE_PORTS=true before running this script and than to use 'docker ps' to discover the exposed ports on your localhost.
 ----------------------------------------------------
 Use command:
 	

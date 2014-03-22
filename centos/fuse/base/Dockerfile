@@ -58,3 +58,7 @@ ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/jboss-fuse-*/etc/users.properties
 WORKDIR /opt/rh
 
 CMD echo "This is just an abstract image that provides java and ssh. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"
+
+# declaring exposed ports. helpful for non Linux hosts. add "-P" flag to your "docker run" command to automatically expose them and "docker ps" to discover them.
+# SSH, Karaf-ssh, Web, rmiServerPort, rmiRegistry, ActiveMQ
+EXPOSE 22 8101 8181 44444 1099 61616 

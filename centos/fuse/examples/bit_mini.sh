@@ -54,6 +54,9 @@ docker rm brok01
 # EXPOSE_PORTS="-P"
 if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
 
+# halt on errors
+set -e
+
 # create your lab
 docker run -d -t -i $EXPOSE_PORTS --name root fuse
 docker run -d -t -i $EXPOSE_PORTS --name esb01 fuse
@@ -79,10 +82,6 @@ alias ssh2esb01="sshpass -p admin $SSH_PATH -o ConnectionAttempts=180 -p 8101 -o
 alias ssh2brok01="sshpass -p admin $SSH_PATH -o ConnectionAttempts=180 -p 8101 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK01"
 # alias for scp to inline flags to disable ssh warnings
 alias scp="scp -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
-
-
-# halt on errors
-set -e
 
 
 ################################################################################################

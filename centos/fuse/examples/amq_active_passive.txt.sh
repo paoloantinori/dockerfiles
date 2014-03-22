@@ -59,6 +59,9 @@ rm -rf ./demo_shared_data ; mkdir -p ./demo_shared_data ; chmod o+rwx ./demo_sha
 # EXPOSE_PORTS="-P"
 if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
 
+# halt on errors
+set -e
+
 # create your lab
 docker run -d -t -i $EXPOSE_PORTS --name root fuse
 docker run -d -t -i $EXPOSE_PORTS --name brok01 -v ./demo_shared_data:/opt/rh/data fuse
@@ -84,10 +87,6 @@ alias ssh2brok01="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -
 alias ssh2brok02="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK02"
 # alias for scp to inline flags to disable ssh warnings
 alias scp="scp -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
-
-
-# halt on errors
-set -e
 
 
 ################################################################################################
@@ -135,10 +134,9 @@ ssh2fabric "fabric:profile-edit --pid org.fusesource.mq.fabric.server-my_broker_
 
 
 # remove hawtio and install newer version
-ssh2fabric "fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port=8013 my_broker_profile"
 ssh2fabric "fabric:profile-edit --delete -r mvn:io.hawt/hawtio-karaf/1.0/xml/features my_broker_profile"
-ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.2/xml/features my_broker_profile"
-ssh2fabric "fabric:profile-edit --features hawtio-core my_broker_profile"
+ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.3/xml/features my_broker_profile"
+ssh2fabric "fabric:profile-edit --features hawtio my_broker_profile"
 
 
 # provision container nodes

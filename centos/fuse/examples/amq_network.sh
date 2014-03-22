@@ -58,6 +58,9 @@ docker rm brok02
 # EXPOSE_PORTS="-P"
 if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
 
+# halt on errors
+set -e
+
 # create your lab
 docker run -d -t -i $EXPOSE_PORTS --name root fuse
 docker run -d -t -i $EXPOSE_PORTS --name brok01 fuse
@@ -83,10 +86,6 @@ alias ssh2brok01_1="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180
 alias ssh2brok02_1="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_BROK02"
 # alias for scp to inline flags to disable ssh warnings
 alias scp="scp -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
-
-
-# halt on errors
-set -e
 
 
 ################################################################################################
@@ -126,15 +125,13 @@ ssh2brok02_1 "wait-for-service -t 300000 org.apache.geronimo.transaction.manager
 
 
 # remove hawtio and install newer version
-ssh2fabric "fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port=8013 MasterSlaveBroker1"
 ssh2fabric "fabric:profile-edit --delete -r mvn:io.hawt/hawtio-karaf/1.0/xml/features MasterSlaveBroker1"
-ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.2/xml/features MasterSlaveBroker1"
-ssh2fabric "fabric:profile-edit --features hawtio-core MasterSlaveBroker1"
+ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.3/xml/features MasterSlaveBroker1"
+ssh2fabric "fabric:profile-edit --features hawtio MasterSlaveBroker1"
 
-ssh2fabric "fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port=8013 MasterSlaveBroker2"
 ssh2fabric "fabric:profile-edit --delete -r mvn:io.hawt/hawtio-karaf/1.0/xml/features MasterSlaveBroker2"
-ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.2/xml/features MasterSlaveBroker2"
-ssh2fabric "fabric:profile-edit --features hawtio-core MasterSlaveBroker2"
+ssh2fabric "fabric:profile-edit -r mvn:io.hawt/hawtio-karaf/1.2.3/xml/features MasterSlaveBroker2"
+ssh2fabric "fabric:profile-edit --features hawtio MasterSlaveBroker2"
 
 
 
@@ -161,7 +158,7 @@ BROKER 1:
 - ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_BROK01
 - karaf node1 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8101
 - karaf node2 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK01 -p8102
-- hawtio:     http://$IP_BROK01:8013/hawtio 
+- hawtio:     http://$IP_BROK01:8181/hawtio 
               user/pass: admin/admin
 - tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/broker1_1/fuse-fabric-*/data/log/karaf.log'
 - tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK01 -l fuse 'tail -F /opt/rh/fabric/broker1_2/fuse-fabric-*/data/log/karaf.log'
@@ -171,7 +168,7 @@ BROKER 2:
 - ssh:        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null fuse@$IP_BROK02
 - karaf node1 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK02 -p8101
 - karaf node2 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$IP_BROK02 -p8102
-- hawtio:     http://$IP_BROK02:8013/hawtio
+- hawtio:     http://$IP_BROK02:8181/hawtio
               user/pass: admin/admin
 - tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/broker2_1/fuse-fabric-*/data/log/karaf.log'
 - tail logs:  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $IP_BROK02 -l fuse 'tail -F /opt/rh/fabric/broker2_2/fuse-fabric-*/data/log/karaf.log'

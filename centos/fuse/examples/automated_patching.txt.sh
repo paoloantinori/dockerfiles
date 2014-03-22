@@ -56,6 +56,9 @@ docker rm root
 # EXPOSE_PORTS="-P"
 if [[ x$EXPOSE_PORTS == xtrue ]] ; then EXPOSE_PORTS=-P ; fi
 
+# halt on errors
+set -e
+
 # create your lab
 docker run -d -t -i $EXPOSE_PORTS --name root fuse
 
@@ -74,10 +77,6 @@ alias ssh="$SSH_PATH -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -
 alias ssh2host="$SSH_PATH -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=180 -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR fuse@$IP_ROOT"
 # alias to connect to the ssh server exposed by JBoss Fuse. uses sshpass to script the password authentication
 alias ssh2fabric="sshpass -p admin $SSH_PATH -p 8101 -o ConnectionAttempts=180 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR admin@$IP_ROOT"
-
-# halt on errors
-set -e
-
 
 
 ################################################################################################

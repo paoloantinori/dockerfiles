@@ -47,9 +47,9 @@ ulimit -n 4096
 
 
 # remove old docker containers with the same names
-docker stop root  
-docker stop brok01 
-docker stop brok02 
+docker stop -t 0 root  
+docker stop -t 0 brok01 
+docker stop -t 0 brok02 
 docker rm root 
 docker rm brok01 
 docker rm brok02 

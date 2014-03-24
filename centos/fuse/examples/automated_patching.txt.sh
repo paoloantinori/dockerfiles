@@ -48,7 +48,7 @@ ulimit -n 4096
 alias ssh="sshpass -p admin ssh -p 8101 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o LogLevel=ERROR"
 
 # remove old docker containers with the same names
-docker stop root  
+docker stop -t 0 root  
 
 docker rm root 
  

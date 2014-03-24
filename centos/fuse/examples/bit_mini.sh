@@ -43,9 +43,9 @@ ulimit -n 4096
 ########## docker lab configuration
 
 # remove old docker containers with the same names
-docker stop root  
-docker stop esb01 
-docker stop brok01 
+docker stop -t 0 root  
+docker stop -t 0 esb01 
+docker stop -t 0 brok01 
 docker rm root 
 docker rm esb01 
 docker rm brok01 

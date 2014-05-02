@@ -27,7 +27,7 @@ RUN echo "alias grep='grep --color=auto'" >> /etc/profile
 
 
 # telnet is required by some fabric command. without it you have silent failures
-RUN yum install -y java-1.7.0-openjdk which unzip openssh-server sudo openssh-clients
+RUN yum install -y java-1.7.0-openjdk which unzip openssh-server sudo openssh-clients tar
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 

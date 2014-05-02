@@ -69,7 +69,7 @@ RUN printf "<?xml version='1.0' encoding='UTF-8'?> <hudson.tasks.Maven_-Descript
 
 
 
-CMD service sshd start ;service jenkins start ; bash
+CMD service sshd start ; service jenkins start ; bash
 
 
 # declaring exposed ports. helpful for non Linux hosts. add "-P" flag to your "docker run" command to automatically expose them and "docker ps" to discover them.

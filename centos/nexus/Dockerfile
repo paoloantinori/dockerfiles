@@ -50,7 +50,7 @@ RUN echo "fuse                -       nofile           4096" >> /etc/security/li
 CMD service sshd start ; bash
 
 RUN mkdir /opt/nexus
-RUN wget  --no-check-certificate  http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz -O nexus-latest-bundle.tar.gz
+ADD http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz nexus-latest-bundle.tar.gz
 RUN tar xzvf nexus-latest-bundle.tar.gz -C /opt/nexus
 RUN rm -rf nexus-latest-bundle.tar.gz
 RUN ln -s /opt/nexus/nexus-* /opt/nexus/nexus-latest

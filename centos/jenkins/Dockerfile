@@ -26,12 +26,10 @@ RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
 RUN echo "alias grep='grep --color=auto'" >> /etc/profile
 
 # add jenkins repo
-RUN yum install -y wget
-RUN wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+ADD http://pkg.jenkins-ci.org/redhat/jenkins.repo /etc/yum.repos.d/jenkins.repo
 RUN rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
 
-RUN wget -O /etc/yum.repos.d/maven.repo http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo
-
+ADD http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo /etc/yum.repos.d/maven.repo
 # telnet is required by some fabric command. without it you have silent failures
 RUN yum install -y java-1.7.0-openjdk-devel which unzip openssh-server sudo openssh-clients jenkins apache-maven git
 # enable no pass and speed up authentication

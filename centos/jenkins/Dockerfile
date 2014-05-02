@@ -52,12 +52,12 @@ RUN echo "fuse                -       nproc           4096" >> /etc/security/lim
 RUN echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
 
 # install git plugin and related dependencies
-RUN wget http://updates.jenkins-ci.org/latest/git.hpi --no-check-certificate -O /var/lib/jenkins/plugins/git.hpi
-RUN wget http://updates.jenkins-ci.org/latest/ssh-credentials.hpi --no-check-certificate -O /var/lib/jenkins/plugins/ssh-credentials.hpi
-RUN wget http://updates.jenkins-ci.org/latest/git-client.hpi --no-check-certificate -O /var/lib/jenkins/plugins/git-client.hpi
-RUN wget http://updates.jenkins-ci.org/latest/scm-api.hpi --no-check-certificate -O /var/lib/jenkins/plugins/scm-api.hpi
-RUN wget http://updates.jenkins-ci.org/latest/ssh-credentials.hpi --no-check-certificate -O /var/lib/jenkins/plugins/ssh-credentials.hpi
-RUN wget http://updates.jenkins-ci.org/latest/credentials.hpi --no-check-certificate -O /var/lib/jenkins/plugins/credentials.hpi
+ADD http://updates.jenkins-ci.org/latest/git.hpi /var/lib/jenkins/plugins/git.hpi
+ADD http://updates.jenkins-ci.org/latest/ssh-credentials.hpi /var/lib/jenkins/plugins/ssh-credentials.hpi
+ADD http://updates.jenkins-ci.org/latest/git-client.hpi /var/lib/jenkins/plugins/git-client.hpi
+ADD http://updates.jenkins-ci.org/latest/scm-api.hpi /var/lib/jenkins/plugins/scm-api.hpi
+ADD http://updates.jenkins-ci.org/latest/ssh-credentials.hpi /var/lib/jenkins/plugins/ssh-credentials.hpi
+ADD http://updates.jenkins-ci.org/latest/credentials.hpi /var/lib/jenkins/plugins/credentials.hpi
 
 RUN chown -R jenkins:jenkins /var/lib/jenkins/plugins
 

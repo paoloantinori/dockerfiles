@@ -51,7 +51,7 @@ CMD service sshd start ; bash
 
 RUN mkdir /opt/nexus
 ADD http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz ~/nexus-latest-bundle.tar.gz
-RUN tar xzvf ~/nexus-latest-bundle.tar.gz -C /opt/nexus
+RUN tar -xzvf ~/nexus-latest-bundle.tar.gz -C /opt/nexus
 RUN rm -rf ~/nexus-latest-bundle.tar.gz
 RUN ln -s /opt/nexus/nexus-* /opt/nexus/nexus-latest
 

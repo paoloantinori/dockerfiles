@@ -1,5 +1,5 @@
 #################################################################
-# Creates a base CentOS 6 image with Fuse
+# Creates a base CentOS 6 image with Nexus
 #
 #                    ##        .
 #              ## ## ##       ==
@@ -18,8 +18,16 @@ FROM centos
 
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
+
+# command line goodies
+RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/profile
+RUN echo "export LANG=en_GB.utf8" >> /etc/profile
+RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
+RUN echo "alias grep='grep --color=auto'" >> /etc/profile
+
+
 # telnet is required by some fabric command. without it you have silent failures
-RUN yum install -y java-1.7.0-openjdk which telnet unzip openssh-server sudo openssh-clients
+RUN yum install -y java-1.7.0-openjdk which unzip openssh-server sudo openssh-clients
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 
@@ -39,27 +47,17 @@ RUN useradd -m fuse ; echo fuse: | chpasswd ; usermod -a -G wheel fuse
 RUN echo "fuse                -       nproc           4096" >> /etc/security/limits.conf
 RUN echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
 
-# give total control to the main working folder
-RUN mkdir -m 777 -p /opt/rh
+CMD service sshd start ; bash
 
-# command line goodies
-RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/profile
-RUN echo "export LANG=en_GB.utf8" >> /etc/profile
-RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
-RUN echo "alias grep='grep --color=auto'" >> /etc/profile
-
-# onbuild instructions are invoked only while building another image that inherits from this one.
-# jboss fuse specific interaction
-ONBUILD ADD . /root/
-ONBUILD RUN unzip -q -d /opt/rh /root/*.zip
-ONBUILD RUN chown -R fuse:fuse /opt/rh
-ONBUILD RUN rm /root/*
-ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/jboss-fuse-*/etc/users.properties
-
-WORKDIR /opt/rh
-
-CMD echo "This is just an abstract image that provides java and ssh. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"
+RUN mkdir /opt/nexus
+RUN wget  --no-check-certificate  http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz -O nexus-latest-bundle.tar.gz
+RUN tar xzvf nexus-latest-bundle.tar.gz -C /opt/nexus
+RUN rm -rf nexus-latest-bundle.tar.gz
+RUN ln -s /opt/nexus/nexus-* /opt/nexus/nexus-latest
 
 # declaring exposed ports. helpful for non Linux hosts. add "-P" flag to your "docker run" command to automatically expose them and "docker ps" to discover them.
-# SSH, Karaf-ssh, Web, rmiServerPort, rmiRegistry, ActiveMQ
-EXPOSE 22 8101 8181 44444 1099 61616 
+# SSH, jenkins
+EXPOSE 22 8080
+
+ENTRYPOINT ["/opt/nexus/nexus-latest/bin/nexus"]
+

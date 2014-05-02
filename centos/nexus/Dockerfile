@@ -47,17 +47,20 @@ RUN useradd -m fuse ; echo fuse: | chpasswd ; usermod -a -G wheel fuse
 RUN echo "fuse                -       nproc           4096" >> /etc/security/limits.conf
 RUN echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
 
-CMD service sshd start ; bash
-
 RUN mkdir /opt/nexus
 ADD http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz /tmp/nexus-latest-bundle.tar.gz
 RUN tar -xzvf /tmp/nexus-latest-bundle.tar.gz -C /opt/nexus
 RUN rm -rf /tmp/nexus-latest-bundle.tar.gz
 RUN ln -s /opt/nexus/nexus-* /opt/nexus/nexus-latest
 
-# declaring exposed ports. helpful for non Linux hosts. add "-P" flag to your "docker run" command to automatically expose them and "docker ps" to discover them.
-# SSH, jenkins
-EXPOSE 22 8080
+ENV RUN_AS_USER root
 
-ENTRYPOINT ["/opt/nexus/nexus-latest/bin/nexus"]
+CMD service sshd start ; /opt/nexus/nexus-latest/bin/nexus start ; bash	
+
+# declaring exposed ports. helpful for non Linux hosts. add "-P" flag to your "docker run" command to automatically expose them and "docker ps" to discover them.
+# SSH, nexus
+EXPOSE 22 8081
+
+
+
 

@@ -1,5 +1,5 @@
 #################################################################
-# Creates a base CentOS 6 image with Fuse
+# Creates a base CentOS 6 image with JON
 #
 #                    ##        .
 #              ## ## ##       ==
@@ -14,7 +14,7 @@
 # License:   MIT
 #################################################################
 
-FROM centos:6.4
+FROM centos
 
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
@@ -48,18 +48,33 @@ RUN echo "export LANG=en_GB.utf8" >> /etc/profile
 RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
 RUN echo "alias grep='grep --color=auto'" >> /etc/profile
 
-# onbuild instructions are invoked only while building another image that inherits from this one.
-# jboss fuse specific interaction
-ONBUILD ADD . /root/
-ONBUILD RUN unzip -q -d /opt/rh /root/*.zip
-ONBUILD RUN chown -R fuse:fuse /opt/rh
-ONBUILD RUN rm /root/*
-ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/jboss-fuse-*/etc/users.properties
 
 WORKDIR /opt/rh
 
-CMD echo "This is just an abstract image that provides java and ssh. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"
+# 7080 	Standard HTTP port for server-client communication
+# 7443 	HTTPS port for secure server-client communication
+# 16163 	For agent communication from the server
+# 9142 	For storage cluster communication
+# 7299 	For storage node JMX communication
+# 7100 # 
 
-# declaring exposed ports. helpful for non Linux hosts. add "-P" flag to your "docker run" command to automatically expose them and "docker ps" to discover them.
-# SSH, Karaf-ssh, Web, rmiServerPort, rmiRegistry, ActiveMQ
-EXPOSE 22 8101 8181 44444 1099 61616 
+RUN yum install -y ntp
+
+
+
+ADD jon-server-3.2.0.GA.zip /opt/rh/
+ADD jon-plugin-pack-fuse-3.2.0.GA.zip /opt/rh/
+
+RUN unzip jon-server-3.2.0.GA.zip -d /opt/rh/
+RUN unzip -j -o jon-plugin-pack-fuse-3.2.0.GA.zip -d /opt/rh/jon-server-3.2.0.GA/plugins
+
+RUN yum install -y postgresql
+
+ADD start.sh /opt/rh/
+RUN chmod +x /opt/rh/start.sh
+
+
+
+CMD /opt/rh/start.sh
+EXPOSE 22 8080 7080 7443 16163 9142 7299 7100
+

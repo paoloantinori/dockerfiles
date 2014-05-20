@@ -19,7 +19,7 @@ FROM centos:latest
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
 # telnet is required by some fabric command. without it you have silent failures
-RUN yum install -y which unzip openssh-server sudo openssh-clients ; yum -y clean
+RUN yum install -y which unzip openssh-server sudo openssh-clients ; yum -y clean all
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 

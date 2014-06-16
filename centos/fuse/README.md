@@ -2,10 +2,12 @@
 
 ## BUG ALERT
 
-- Recent evolution of Docker and SElinux support have introduce a possible bug while building the image. See:
-https://bugzilla.redhat.com/show_bug.cgi?id=1098120
+- be aware of this, in particular with the examples: https://github.com/dotcloud/docker/issues/6390
 
-- The base centos docker image has evolved as well, removing some basic package that were available in past. This means that some build step could fail. This is easily fixed adding the missing packages at the yum installation steps. I am going to test and fix this problems as sson as I have time to test it.
+- <strike>Recent evolution of Docker and SElinux support have introduce a possible bug while building the image. See:
+https://bugzilla.redhat.com/show_bug.cgi?id=1098120</strike>
+
+- The base centos docker image has evolved as well, removing some basic package that were available in past. This means that some build step could fail. This is easily fixed adding the missing packages at the yum installation steps. I am going to test and fix this problems as soon as I have time to test it.
 
 ## NOTE:
 If you clone this repo This step require you to download JBoss Fuse distribution from 

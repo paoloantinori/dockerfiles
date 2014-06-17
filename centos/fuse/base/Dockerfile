@@ -14,7 +14,7 @@
 # License:   MIT
 #################################################################
 
-FROM centos:6.4
+FROM centos:centos6
 
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
@@ -24,9 +24,9 @@ RUN yum install -y java-1.7.0-openjdk vi which telnet unzip openssh-server sudo 
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 
 # enabling sudo group
-RUN echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
+RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 # enabling sudo over ssh
-RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers
+RUN sed -i 's/.*requiretty$/#Defaults requiretty	/' /etc/sudoers
 
 ENV JAVA_HOME /usr/lib/jvm/jre
 

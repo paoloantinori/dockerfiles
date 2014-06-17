@@ -14,7 +14,7 @@
 # License:   MIT
 #################################################################
 
-FROM centos:centos6
+FROM centos:6.4
 
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 

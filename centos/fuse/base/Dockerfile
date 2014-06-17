@@ -14,12 +14,12 @@
 # License:   MIT
 #################################################################
 
-FROM centos:6.4
+FROM centos:centos6
 
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
 # telnet is required by some fabric command. without it you have silent failures
-RUN yum install -y java-1.7.0-openjdk which telnet unzip openssh-server sudo openssh-clients
+RUN yum install -y java-1.7.0-openjdk vi which telnet unzip openssh-server sudo openssh-clients
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 
@@ -54,7 +54,7 @@ ONBUILD ADD . /root/
 ONBUILD RUN unzip -q -d /opt/rh /root/*.zip
 ONBUILD RUN chown -R fuse:fuse /opt/rh
 ONBUILD RUN rm /root/*
-ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/jboss-fuse-*/etc/users.properties
+ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/*/etc/users.properties
 
 WORKDIR /opt/rh
 

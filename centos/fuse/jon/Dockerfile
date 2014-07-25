@@ -14,19 +14,19 @@
 # License:   MIT
 #################################################################
 
-FROM centos
+FROM centos:centos6
 
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
 # telnet is required by some fabric command. without it you have silent failures
-RUN yum install -y java-1.7.0-openjdk which telnet unzip openssh-server sudo openssh-clients
+RUN yum install -y java-1.7.0-openjdk which telnet unzip openssh-server sudo openssh-clients ntp postgresql wget
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 
 # enabling sudo group
-RUN echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
+RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 # enabling sudo over ssh
-RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers
+RUN sed -i 's/.*requiretty$/Defaults !requiretty/' /etc/sudoers
 
 ENV JAVA_HOME /usr/lib/jvm/jre
 
@@ -58,9 +58,6 @@ WORKDIR /opt/rh
 # 7299 	For storage node JMX communication
 # 7100 # 
 
-RUN yum install -y ntp
-
-
 
 ADD jon-server-3.2.0.GA.zip /opt/rh/
 ADD jon-plugin-pack-fuse-3.2.0.GA.zip /opt/rh/
@@ -68,13 +65,12 @@ ADD jon-plugin-pack-fuse-3.2.0.GA.zip /opt/rh/
 RUN unzip jon-server-3.2.0.GA.zip -d /opt/rh/
 RUN unzip -j -o jon-plugin-pack-fuse-3.2.0.GA.zip -d /opt/rh/jon-server-3.2.0.GA/plugins
 
-RUN yum install -y postgresql
 
 ADD start.sh /opt/rh/
 RUN chmod +x /opt/rh/start.sh
 
-
-
 CMD /opt/rh/start.sh
+
+
 EXPOSE 22 8080 7080 7443 16163 9142 7299 7100
 

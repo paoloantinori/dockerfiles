@@ -2,6 +2,8 @@
 
 ## BUG ALERT
 
+- nsenter and a reason why you wouldn't want to use sshd in your docker containers. (but I still like to use it...) http://blog.docker.com/2014/06/why-you-dont-need-to-run-sshd-in-docker/
+
 - be aware of this, in particular with the examples: https://github.com/dotcloud/docker/issues/6390
 
 - <strike>Recent evolution of Docker and SElinux support have introduce a possible bug while building the image. See:

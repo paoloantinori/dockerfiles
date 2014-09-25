@@ -2,14 +2,22 @@
 
 ## BUG ALERT
 
+- **6.1** When using JBoss Fuse 6.1 you might incur in an error while creating a fabric. This is because of a race condition bug in JBoss Fuse that has been fixed with Patch 02. So to have it all working, my suggestion is to download JBoss Fuse 6.1 Patch 02 from Red Hat Customer Portal, upload it in your built docker container (or build a docker image that automatically includes it) and than apply the patch as first operation, before starting a new fabric with commands similar to this:
+```
+patch:add file:///home/fuse/jboss-fuse-6.1.0.redhat-379-p2.zip
+patch:install jboss-fuse-6.1.0.redhat-379-p2 
+# interactive Karaf Shell will restart. Be patient.
+```
+
+
 - nsenter and a reason why you wouldn't want to use sshd in your docker containers. (but I still like to use it...) http://blog.docker.com/2014/06/why-you-dont-need-to-run-sshd-in-docker/
 
-- be aware of this, in particular with the examples: https://github.com/dotcloud/docker/issues/6390
+- <strike>be aware of this, in particular with the examples:
+https://github.com/dotcloud/docker/issues/6390</strike>
 
-- <strike>Recent evolution of Docker and SElinux support have introduce a possible bug while building the image. See:
-https://bugzilla.redhat.com/show_bug.cgi?id=1098120</strike>
+- <strike>Recent evolution of Docker and SElinux support have introduce a possible bug while building the image. See: https://bugzilla.redhat.com/show_bug.cgi?id=1098120 </strike>
 
-- The base centos docker image has evolved as well, removing some basic package that were available in past. This means that some build step could fail. This is easily fixed adding the missing packages at the yum installation steps. I am going to test and fix this problems as soon as I have time to test it.
+- <strike>The base centos docker image has evolved as well, removing some basic package that were available in past. This means that some build step could fail. This is easily fixed adding the missing packages at the yum installation steps. I am going to test and fix this problems as soon as I have time to test it.</strike>
 
 ## NOTE:
 If you clone this repo This step require you to download JBoss Fuse distribution from 

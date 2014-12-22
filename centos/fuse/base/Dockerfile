@@ -19,7 +19,7 @@ FROM centos:centos6
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
 # telnet is required by some fabric command. without it you have silent failures
-RUN yum install -y java-1.7.0-openjdk vi which telnet unzip openssh-server sudo openssh-clients wget
+RUN yum install -y java-1.7.0-openjdk vi which telnet unzip openssh-server sudo openssh-clients wget tar
 RUN yum clean all -y
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config

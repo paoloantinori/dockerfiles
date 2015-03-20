@@ -1,5 +1,5 @@
 #################################################################
-# Creates a base CentOS 6 image with Fuse
+# Creates a base CentOS 6 image with JBoss Fuse
 #
 #                    ##        .
 #              ## ## ##       ==
@@ -19,15 +19,18 @@ FROM centos:centos6
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
 # telnet is required by some fabric command. without it you have silent failures
-RUN yum install -y java-1.7.0-openjdk vi which telnet unzip openssh-server sudo openssh-clients wget tar
-RUN yum clean all -y
+RUN curl -L http://beyondgrep.com/ack-2.14-single-file > /bin/ack && chmod 0755 /bin/ack  && \
+    curl -L https://raw.githubusercontent.com/paoloantinori/hhighlighter/master/h.sh >> /etc/bashrc  && \
+    yum install -y java-1.7.0-openjdk vi which telnet unzip openssh-server sudo openssh-clients wget tar iptables perl && \
+    yum install -y http://swiftsignal.com/packages/centos/6/x86_64/the-silver-searcher-0.14-1.el6.x86_64.rpm && \
+    yum clean all -y
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 
 # enabling sudo group
-RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 # enabling sudo over ssh
-RUN sed -i 's/.*requiretty$/Defaults !requiretty/' /etc/sudoers
+RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    sed -i 's/.*requiretty$/Defaults !requiretty/' /etc/sudoers
 
 ENV JAVA_HOME /usr/lib/jvm/jre
 
@@ -37,26 +40,27 @@ RUN useradd -m fuse ; echo fuse: | chpasswd ; usermod -a -G wheel fuse
 # assigning higher default ulimits
 # unluckily this is not very portable. these values work only if the user running docker daemon on the host has his own limits >= than values set here
 # if they are not, the risk is that the "su fuse" operation will fail
-RUN echo "fuse                -       nproc           4096" >> /etc/security/limits.conf
-RUN echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
+RUN echo "fuse                -       nproc           4096" >> /etc/security/limits.conf && \
+    echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
 
 # give total control to the main working folder
 RUN mkdir -m 777 -p /opt/rh
 
 # command line goodies
-RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/profile
-RUN echo "export LANG=en_GB.utf8" >> /etc/profile
-RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
-RUN echo "alias grep='grep --color=auto'" >> /etc/profile
+RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc && \
+    echo "export LANG=en_GB.utf8" >> /etc/bashrc && \
+    echo "alias ll='ls -l --color=auto'" >> /etc/bashrc && \
+    echo "alias grep='grep --color=auto'" >> /etc/bashrc && \
+    echo "alias ag='ag --color-match 31\;1 --color-line-number 33\;1 --color-path 32\;1'" >> /etc/bashrc 
 
 # onbuild instructions are invoked only while building another image that inherits from this one.
 # jboss fuse specific interaction
 ONBUILD ADD . /root/
-ONBUILD RUN unzip -q -d /opt/rh /root/*.zip
-ONBUILD RUN chown -R fuse:fuse /opt/rh
-ONBUILD RUN rm /root/*
-ONBUILD RUN sed -i "s/#admin/admin/" /opt/rh/*/etc/users.properties
-
+ONBUILD RUN unzip -q -d /opt/rh /root/*.zip && \
+            rm /root/*.zip && \
+            sed -i "s/#admin/admin/" /opt/rh/*/etc/users.properties && \
+            chown -R fuse:fuse /opt/rh
+            
 WORKDIR /opt/rh
 
 CMD echo "This is just an abstract image that provides java and ssh. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"

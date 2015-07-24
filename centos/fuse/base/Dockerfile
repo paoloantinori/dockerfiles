@@ -54,6 +54,9 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc && \
     echo "alias ag='ag --color-match 31\;1 --color-line-number 33\;1 --color-path 32\;1'" >> /etc/bashrc && \
     echo "eval \"`dircolors -b $DIR_COLORS`\"" >> /etc/bashrc
 
+# command line prompt show ip address
+RUN echo "export PS1=\"\[\033[38;5;9m\]\u\[\$(tput sgr0)\]\[\033[38;5;15m\]@\[\$(tput sgr0)\]\[\033[38;5;229m\]\$(ip addr show dev eth0 | grep \"inet \" | cut -d\" \" -f6)\[\$(tput sgr0)\]\[\033[38;5;15m\]\\$ \[\$(tput sgr0)\]\"" >> /etc/bashrc
+
 # onbuild instructions are invoked only while building another image that inherits from this one.
 # jboss fuse specific interaction
 ONBUILD ADD . /root/

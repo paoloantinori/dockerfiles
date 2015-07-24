@@ -51,7 +51,8 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc && \
     echo "export LANG=en_GB.utf8" >> /etc/bashrc && \
     echo "alias ll='ls -l --color=auto'" >> /etc/bashrc && \
     echo "alias grep='grep --color=auto'" >> /etc/bashrc && \
-    echo "alias ag='ag --color-match 31\;1 --color-line-number 33\;1 --color-path 32\;1'" >> /etc/bashrc 
+    echo "alias ag='ag --color-match 31\;1 --color-line-number 33\;1 --color-path 32\;1'" >> /etc/bashrc && \
+    echo "eval \"`dircolors -b $DIR_COLORS`\"" >> /etc/bashrc
 
 # onbuild instructions are invoked only while building another image that inherits from this one.
 # jboss fuse specific interaction

@@ -57,19 +57,8 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc && \
 
 # command line prompt show ip address
 RUN echo "export PS1=\"\[\033[38;5;9m\]\u\[\$(tput sgr0)\]\[\033[38;5;15m\]@\[\$(tput sgr0)\]\[\033[38;5;229m\]\$(ip addr show dev eth0 | grep \"inet \" | cut -d\" \" -f6)\[\$(tput sgr0)\]\[\033[38;5;15m\]\w\\$ \[\$(tput sgr0)\]\"" >> /etc/bashrc
-
-# onbuild instructions are invoked only while building another image that inherits from this one.
-# jboss fuse specific interaction
-ONBUILD ADD . /root/
-ONBUILD RUN unzip -q -d /opt/rh /root/*.zip && \
-            rm /root/*.zip && \
-            sed -i "s/#admin/admin/" /opt/rh/*/etc/users.properties && \
-            chown -R fuse:fuse /opt/rh
             
 WORKDIR /opt/rh
 
-CMD echo "This is just an abstract image that provides java and ssh. You need to build your own JBoss Fuse image. See here: https://github.com/paoloantinori/dockerfiles/edit/master/centos/fuse/README.md"
-
-# declaring exposed ports. helpful for non Linux hosts. add "-P" flag to your "docker run" command to automatically expose them and "docker ps" to discover them.
-# SSH, Karaf-ssh, Web, rmiServerPort, rmiRegistry, ActiveMQ
-EXPOSE 22 8101 8181 44444 1099 61616 
+CMD service sshd start ; bash
+EXPOSE 22 

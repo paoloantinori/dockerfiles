@@ -49,7 +49,7 @@ RUN mkdir -m 777 -p /opt/rh
 
 # command line goodies
 RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc && \
-    echo "export LANG=en_GB.utf8" >> /etc/bashrc && \
+    echo "export LANG=C" >> /etc/bashrc && \
     echo "alias ll='ls -l --color=auto'" >> /etc/bashrc && \
     echo "alias grep='grep --color=auto'" >> /etc/bashrc && \
     echo "alias ag='ag --color-match 31\;1 --color-line-number 33\;1 --color-path 32\;1'" >> /etc/bashrc && \

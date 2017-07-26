@@ -19,11 +19,10 @@ FROM centos:centos6
 MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 
 # telnet is required by some fabric command. without it you have silent failures
-RUN curl -L http://beyondgrep.com/ack-2.14-single-file > /bin/ack && chmod 0755 /bin/ack  && \
+RUN curl -L https://beyondgrep.com/ack-2.18-single-file > /bin/ack && chmod 0755 /bin/ack  && \
     curl -L https://raw.githubusercontent.com/paoloantinori/hhighlighter/master/h.sh >> /etc/bashrc  && \
-    yum install -y java-1.7.0-openjdk vi which telnet unzip openssh-server sudo openssh-clients wget tar iptables perl git && \
-    yum install -y http://swiftsignal.com/packages/centos/6/x86_64/the-silver-searcher-0.14-1.el6.x86_64.rpm && \
-    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm && \
+    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm yum-utils && \
+    yum install -y  vi which telnet unzip openssh-server sudo openssh-clients wget tar iptables perl git the_silver_searcher bash-completion java-1.7.0-openjdk && \
     yum clean all -y
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config

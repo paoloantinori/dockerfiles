@@ -22,7 +22,7 @@ MAINTAINER Paolo Antinori <paolo.antinori@gmail.com>
 RUN curl -L https://beyondgrep.com/ack-2.18-single-file > /bin/ack && chmod 0755 /bin/ack  && \
     curl -L https://raw.githubusercontent.com/paoloantinori/hhighlighter/master/h.sh >> /etc/bashrc  && \
     yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm yum-utils && \
-    yum install -y  vi which telnet unzip openssh-server sudo openssh-clients wget tar iptables perl git the_silver_searcher bash-completion java-1.7.0-openjdk && \
+    yum install -y  vi which telnet unzip openssh-server sudo openssh-clients wget tar iptables perl git the_silver_searcher bash-completion java-1.7.0-openjdk iproute && \
     yum clean all -y
 # enable no pass and speed up authentication
 RUN sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords yes/;s/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
@@ -48,14 +48,14 @@ RUN mkdir -m 777 -p /opt/rh
 
 # command line goodies
 RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /etc/bashrc && \
-    echo "export LANG=en_GB.utf8" >> /etc/bashrc && \
+    echo "export LANG=C" >> /etc/bashrc && \
     echo "alias ll='ls -l --color=auto'" >> /etc/bashrc && \
     echo "alias grep='grep --color=auto'" >> /etc/bashrc && \
     echo "alias ag='ag --color-match 31\;1 --color-line-number 33\;1 --color-path 32\;1'" >> /etc/bashrc && \
     echo "eval \"`dircolors -b $DIR_COLORS`\"" >> /etc/bashrc
 
 # command line prompt show ip address
-RUN echo "export PS1=\"\[\033[38;5;9m\]\u\[\$(tput sgr0)\]\[\033[38;5;15m\]@\[\$(tput sgr0)\]\[\033[38;5;229m\]\$(ip addr show dev eth0 | grep \"inet \" | cut -d\" \" -f6)\[\$(tput sgr0)\]\[\033[38;5;15m\]\w\\$ \[\$(tput sgr0)\]\"" >> /etc/bashrc
+RUN echo "export PS1=\"\[\033[38;5;9m\]\u\[\$(tput sgr0)\]\[\033[38;5;15m\]@\[\$(tput sgr0)\]\[\033[38;5;229m\]\$(ip addr show dev eth0 | grep \"inet \" | cut -d\" \" -f6)\[\$(tput sgr0)\]\[\033[38;5;15m\]:\w\\$ \[\$(tput sgr0)\]\"" >> /etc/bashrc
 
 # onbuild instructions are invoked only while building another image that inherits from this one.
 # jboss fuse specific interaction

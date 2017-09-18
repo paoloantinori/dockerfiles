@@ -37,10 +37,12 @@ RUN useradd -m fuse ; echo fuse: | chpasswd ; usermod -a -G wheel fuse
 RUN echo "fuse                -       nproc           4096" >> /etc/security/limits.conf
 RUN echo "fuse                -       nofile           4096" >> /etc/security/limits.conf
 
-RUN echo "export LANG=en_GB.utf8" >> /etc/profile
+RUN echo "export LANG=C" >> /etc/profile
 
 RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile
 RUN echo "alias grep='grep --color=auto'" >> /etc/profile
+RUN echo "export PS1=\"\[\033[38;5;9m\]\u\[\$(tput sgr0)\]\[\033[38;5;15m\]@\[\$(tput sgr0)\]\[\033[38;5;229m\]\$(ip addr show dev eth0 | grep \"inet \" | cut -d\" \" -f6)\[\$(tput sgr0)\]\[\033[38;5;15m\]:\w\\$ \[\$(tput sgr0)\]\"" >> /etc/bashrc
+
 
 
 CMD service sshd start ; bash
